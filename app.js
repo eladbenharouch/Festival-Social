@@ -9,7 +9,7 @@ app.get('/', (req, res) =>
      {
   res.send('השרת עובד!');
     });
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => 
 {
   console.log(`השרת רץ על http://localhost:${PORT}`);
