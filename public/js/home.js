@@ -4,10 +4,13 @@ const content = document.getElementById('content');
 async function init()
 {
   const result = await getCurrentUser();
+  const user = result && result.user ? result.user : null;
 
-  if (result && result.user)
+  renderNav(navLinks, user, 'home');
+
+  if (user)
   {
-    renderLoggedIn(result.user);
+    renderLoggedIn(user);
   }
   else
   {
@@ -17,11 +20,6 @@ async function init()
 
 function renderLoggedOut()
 {
-  navLinks.innerHTML = `
-    <li><a href="/login.html">Login</a></li>
-    <li><a href="/register.html">Sign Up</a></li>
-  `;
-
   content.innerHTML = `
     <h1>Find your next festival</h1>
     <p class="subtitle">Share experiences, join groups, get live updates from the crowd.</p>
@@ -31,29 +29,10 @@ function renderLoggedOut()
 
 function renderLoggedIn(user)
 {
-  navLinks.innerHTML = `
-    <li>Hey, ${escapeHtml(user.username)}</li>
-    <li><a href="#" id="logoutLink">Logout</a></li>
-  `;
-
   content.innerHTML = `
     <h1>Welcome back, ${escapeHtml(user.username)}</h1>
-    <p class="subtitle">Your feed will show up here soon.</p>
+    <p class="subtitle">Your feed will show up here soon. Check out your <a href="/groups.html">groups</a> to get started.</p>
   `;
-
-  document.getElementById('logoutLink').addEventListener('click', async (event) =>
-  {
-    event.preventDefault();
-    await apiRequest('/api/users/logout', { method: 'POST' }).catch(() => {});
-    window.location.reload();
-  });
-}
-
-function escapeHtml(text)
-{
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
 }
 
 init();
