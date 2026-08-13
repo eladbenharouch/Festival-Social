@@ -1,6 +1,7 @@
 require('dotenv').config();
 const connectDB = require('./config/db');
 connectDB();
+const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const { MongoStore } = require('connect-mongo');
@@ -23,11 +24,7 @@ app.use(session(
 }));
 
 app.use('/api/users', userRoutes);
-
-app.get('/', (req, res) =>
-{
-  res.send('Server is running!');
-});
+app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
