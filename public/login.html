@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Festival Social</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo">Festival Social</div>
+    <nav class="site-nav">
+      <ul>
+        <li><a href="/register.html">Sign Up</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="card">
+      <h1>Welcome back</h1>
+      <p class="subtitle">Log in to see what's happening tonight.</p>
+
+      <p class="error-message" id="errorMessage"></p>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="username">Username or email</label>
+          <input type="text" id="username" name="username" required autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="primary-btn" id="submitBtn">Log In</button>
+      </form>
+
+      <p class="form-footer">New here? <a href="/register.html">Create an account</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    Festival Social &mdash; Internet Application Development course project
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>

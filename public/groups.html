@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Groups - Festival Social</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo">Festival Social</div>
+    <nav class="site-nav">
+      <ul id="navLinks"></ul>
+    </nav>
+  </header>
+
+  <div class="toast" id="toast"></div>
+
+  <main class="top-align">
+    <div class="page-container">
+
+      <section class="card-flat">
+        <h2>Create a Group</h2>
+        <p class="error-message" id="createError"></p>
+        <form id="createGroupForm" class="inline-form">
+          <div class="field">
+            <label for="groupName">Name</label>
+            <input type="text" id="groupName" required minlength="3" maxlength="60" placeholder="Techno Nights">
+          </div>
+          <div class="field">
+            <label for="groupCategory">Category</label>
+            <input type="text" id="groupCategory" required maxlength="40" placeholder="genre, travel, ...">
+          </div>
+          <div class="field">
+            <label for="groupDescription">Description</label>
+            <input type="text" id="groupDescription" maxlength="500" placeholder="Optional">
+          </div>
+          <button type="submit" class="primary-btn btn-small">Create</button>
+        </form>
+      </section>
+
+      <section class="card-flat">
+        <h2>Browse Groups</h2>
+        <div class="filters">
+          <div class="field">
+            <label for="filterName">Search by name</label>
+            <input type="text" id="filterName" placeholder="e.g. Techno Nights">
+          </div>
+          <div class="field">
+            <label for="filterCategory">Category</label>
+            <input type="text" id="filterCategory" placeholder="e.g. genre, travel">
+          </div>
+          <button id="searchBtn" class="primary-btn btn-small">Search</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>My Groups</h2>
+        <div class="groups-grid" id="myGroupsGrid"></div>
+      </section>
+
+      <section>
+        <h2>Discover Groups</h2>
+        <div class="groups-grid" id="allGroupsGrid"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Festival Social &mdash; Internet Application Development course project
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/groups.js"></script>
+</body>
+</html>
