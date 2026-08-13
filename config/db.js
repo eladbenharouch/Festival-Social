@@ -5,11 +5,11 @@ async function connectDB()
   try 
   {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('התחברות ל-MongoDB הצליחה');
-  } 
-  catch (err) 
+    console.log('MongoDB connection successful');
+  }
+  catch (err)
   {
-    console.error('שגיאה בהתחברות ל-MongoDB:', err.message);
+    console.error('MongoDB connection error:', err.message);
     process.exit(1);
   }
 }
