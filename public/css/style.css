@@ -354,6 +354,133 @@ button.btn-danger:hover {
   color: #8effc0;
 }
 
+.field textarea {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background-color: #12101c;
+  color: var(--text-light);
+  font-size: 1rem;
+  resize: vertical;
+  min-height: 4.5rem;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 3px rgba(138, 79, 255, 0.25);
+}
+
+.field select {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background-color: #12101c;
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  flex-basis: 100%;
+}
+
+.checkbox-field input {
+  width: auto;
+}
+
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.post-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.post-card.live {
+  border-color: var(--accent-pink);
+}
+
+.post-card h3 {
+  text-shadow: 0 0 8px rgba(255, 138, 61, 0.35);
+}
+
+.post-card .post-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.post-card .post-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.live-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(255, 63, 142, 0.2);
+  color: var(--accent-pink);
+  font-size: 0.75rem;
+  font-weight: bold;
+  width: fit-content;
+}
+
+.post-card .media-link {
+  color: var(--accent-orange);
+  font-size: 0.85rem;
+}
+
+.comment-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.comment-item {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.comment-item .comment-author {
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.comment-item button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0;
+}
+
+.comment-item button:hover {
+  color: #ff9fae;
+}
+
 footer.site-footer {
   text-align: center;
   padding: 1rem;
