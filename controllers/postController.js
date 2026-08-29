@@ -411,6 +411,59 @@ async function deleteComment(req, res)
   {
     console.error('Delete comment error:', err.message);
     return res.status(500).json({ error: 'Server error while deleting comment' });
+  } 
+}
+
+async function searchPosts(req, res)
+{
+  try
+  {
+    const { genre, isLive, lat, lng, maxDistance } = req.query;
+
+    const filter = {};
+
+    if (genre)
+    {
+      filter.genre = genre;
+    }
+
+    if (isLive === 'true')
+    {
+      filter.isLive = true;
+    }
+    else if (isLive === 'false')
+    {
+      filter.isLive = false;
+    }
+
+    if (lat !== undefined && lng !== undefined)
+    {
+      const latNum = Number(lat);
+      const lngNum = Number(lng);
+
+      if (Number.isNaN(latNum) || Number.isNaN(lngNum) || latNum < -90 || latNum > 90 || lngNum < -180 || lngNum > 180)
+      {
+        return res.status(400).json({ error: 'Invalid location coordinates' });
+      }
+
+      filter.location =
+      {
+        $near:
+        {
+          $geometry: { type: 'Point', coordinates: [lngNum, latNum] },
+          $maxDistance: maxDistance ? Number(maxDistance) : 10000
+        }
+      };
+    }
+
+    const posts = await populatePost(Post.find(filter)).sort({ createdAt: -1 });
+
+    return res.status(200).json({ posts });
+  }
+  catch (err)
+  {
+    console.error('Search posts error:', err.message);
+    return res.status(500).json({ error: 'Server error while searching posts' });
   }
 }
 
@@ -424,5 +477,6 @@ module.exports =
   deletePost,
   toggleLike,
   addComment,
-  deleteComment
+  deleteComment,
+  searchPosts
 };
