@@ -6,6 +6,8 @@ let followingIds = new Set();
 let lastPosts = [];
 let editingPostId = null;
 let toastTimer = null;
+let lastSearchResults = [];
+let searchCoords = null;
 
 async function init()
 {
@@ -69,13 +71,35 @@ async function renderLoggedIn()
         <button type="submit" class="primary-btn btn-small">Post</button>
       </form>
     </section>
-    <section>
+      <section>
       <h2>Your Feed</h2>
       <div class="posts-list" id="feedList"></div>
+    </section>
+    <section class="card-flat">
+      <h2>Search Posts</h2>
+      <form id="postSearchForm" class="inline-form">
+        <div class="field">
+          <label for="searchGenre">Genre</label>
+          <input type="text" id="searchGenre" maxlength="40" placeholder="Any genre">
+        </div>
+        <div class="field">
+          <label for="searchIsLive">Live status</label>
+          <select id="searchIsLive">
+            <option value="">All posts</option>
+            <option value="true">Live only</option>
+            <option value="false">Non-live only</option>
+          </select>
+        </div>
+        <label class="checkbox-field"><input type="checkbox" id="searchNearMe"> Near my location</label>
+        <button type="submit" class="primary-btn btn-small">Search</button>
+      </form>
+      <p class="error-message" id="searchError"></p>
+      <div class="posts-list" id="searchResultsList"></div>
     </section>
   `;
 
   setupCreateForm();
+  setupPostSearch();
 
   await Promise.all([loadMyGroupsForSelect(), loadFollowing()]);
   await loadFeed();
@@ -500,6 +524,117 @@ function showToast(message, type)
 
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('visible'), 3000);
+}
+
+function getCurrentCoords()
+{
+  return new Promise((resolve, reject) =>
+  {
+    if (!navigator.geolocation)
+    {
+      reject(new Error('Geolocation is not supported by your browser'));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
+      (error) => reject(new Error(error.message))
+    );
+  });
+}
+
+function setupPostSearch()
+{
+  const form = document.getElementById('postSearchForm');
+  const nearMeCheckbox = document.getElementById('searchNearMe');
+  const errorEl = document.getElementById('searchError');
+
+  form.addEventListener('submit', async (event) =>
+  {
+    event.preventDefault();
+    errorEl.classList.remove('visible');
+
+    if (nearMeCheckbox.checked)
+    {
+      try
+      {
+        searchCoords = await getCurrentCoords();
+      }
+      catch (err)
+      {
+        errorEl.textContent = 'Could not get your location: ' + err.message;
+        errorEl.classList.add('visible');
+        return;
+      }
+    }
+    else
+    {
+      searchCoords = null;
+    }
+
+    await loadPostSearch();
+  });
+}
+
+async function loadPostSearch()
+{
+  try
+  {
+    const genre = document.getElementById('searchGenre').value.trim();
+    const isLive = document.getElementById('searchIsLive').value;
+
+    const params = new URLSearchParams();
+
+    if (genre)
+    {
+      params.set('genre', genre);
+    }
+
+    if (isLive)
+    {
+      params.set('isLive', isLive);
+    }
+
+    if (searchCoords)
+    {
+      params.set('lat', searchCoords.lat);
+      params.set('lng', searchCoords.lng);
+      params.set('maxDistance', 20000);
+    }
+
+    const query = params.toString();
+    const { posts } = await apiRequest(`/api/posts/search${query ? '?' + query : ''}`);
+    lastSearchResults = posts;
+    renderSearchResultsList();
+  }
+  catch (err)
+  {
+    showToast(err.message, 'error');
+  }
+}
+
+function renderSearchResultsList()
+{
+  const container = document.getElementById('searchResultsList');
+
+  if (!lastSearchResults.length)
+  {
+    container.innerHTML = '<p class="empty-message">No posts found.</p>';
+    return;
+  }
+
+  container.innerHTML = lastSearchResults.map((post) => postCardHtml(post)).join('');
+
+  lastSearchResults.forEach((post) =>
+  {
+    if (post._id === editingPostId)
+    {
+      wireEditForm(post);
+      return;
+    }
+
+    wireDisplayCard(post);
+  });
 }
 
 init();
