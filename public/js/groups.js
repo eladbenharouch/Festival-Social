@@ -48,6 +48,11 @@ async function loadAllGroups(filters = currentFilters)
     params.set('category', filters.category);
   }
 
+  if (filters.sortBy)
+  {
+    params.set('sortBy', filters.sortBy);
+  }
+
   const query = params.toString();
   const { groups } = await apiRequest(`/api/groups${query ? '?' + query : ''}`);
   renderGroupGrid(document.getElementById('allGroupsGrid'), groups, 'No groups found.');
@@ -206,7 +211,8 @@ function setupSearch()
     currentFilters =
     {
       name: document.getElementById('filterName').value.trim(),
-      category: document.getElementById('filterCategory').value.trim()
+      category: document.getElementById('filterCategory').value.trim(),
+      sortBy: document.getElementById('filterSortBy').value
     };
 
     await loadAllGroups(currentFilters);

@@ -47,7 +47,7 @@ async function listGroups(req, res)
 {
   try
   {
-    const { category, name } = req.query;
+    const { category, name, sortBy } = req.query;
     const filter = {};
 
     if (category)
@@ -60,9 +60,11 @@ async function listGroups(req, res)
       filter.name = new RegExp(escapeRegex(name), 'i');
     }
 
+    const sortOption = sortBy === 'popular' ? { memberCount: -1 } : { createdAt: -1 };
+
     const groups = await Group.find(filter)
       .populate('creator', 'username')
-      .sort({ createdAt: -1 });
+      .sort(sortOption);
 
     return res.status(200).json({ groups });
   }
@@ -229,6 +231,7 @@ async function joinGroup(req, res)
     }
 
     group.members.push(req.session.userId);
+    group.memberCount = group.members.length;
     await group.save();
     await User.findByIdAndUpdate(req.session.userId, { $addToSet: { groups: group._id } });
 
@@ -270,6 +273,7 @@ async function leaveGroup(req, res)
     }
 
     group.members = group.members.filter((memberId) => memberId.toString() !== req.session.userId);
+    group.memberCount = group.members.length;
     await group.save();
     await User.findByIdAndUpdate(req.session.userId, { $pull: { groups: group._id } });
 
