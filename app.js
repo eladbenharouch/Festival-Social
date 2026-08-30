@@ -32,6 +32,10 @@ app.use('/api/groups', groupRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/weather', weatherRoutes);
+app.get('/api/maps-key', (req, res) =>
+{
+  res.json({ key: process.env.GOOGLE_MAPS_API_KEY });
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 3000;
