@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - Festival Social</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="logo">Festival Social</div>
+        <nav class="site-nav">
+            <ul id="navLinks"></ul>
+        </nav>
+    </header>
+
+    <div class="toast" id="toast"></div>
+
+    <main class="top-align">
+        <div class="page-container">
+
+            <section class="card-flat">
+                <h2>Find People</h2>
+
+                <form id="searchUsersForm" class="filters">
+                    <div class="field">
+                        <label for="searchUsername">Username</label>
+                        <input type="text" id="searchUsername" placeholder="Search username">
+                    </div>
+
+                    <div class="field">
+                        <label for="searchEmail">Email</label>
+                        <input type="text" id="searchEmail" placeholder="Search email">
+                    </div>
+
+                    <div class="field">
+                        <label for="searchGenre">Favorite Genre</label>
+                        <input type="text" id="searchGenre" placeholder="house, techno...">
+                    </div>
+
+                    <div class="people-search-actions">
+                        <button type="submit" class="primary-btn btn-small">
+                            Search
+                        </button>
+
+                        <button type="button" id="showAllUsersBtn" class="secondary-btn btn-small">
+                            Show All
+                        </button>
+                    </div>
+                </form>
+
+                <p id="usersMessage" class="error-message"></p>
+            </section>
+
+            <section>
+                <h2>People</h2>
+                <div id="usersList" class="users-list"></div>
+            </section>
+
+            <section class="card-flat">
+                <h2>My Profile</h2>
+
+                <form id="editProfileForm">
+                    <div class="field">
+                        <label for="profileUsername">Username</label>
+                        <input type="text" id="profileUsername" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="profileEmail">Email</label>
+                        <input type="email" id="profileEmail" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="profileAvatar">Avatar URL</label>
+                        <input type="text" id="profileAvatar" placeholder="https://...">
+                    </div>
+
+                    <div class="field">
+                        <label for="profileGenres">Favorite Genres</label>
+                        <input type="text" id="profileGenres" placeholder="house, techno, pop">
+                    </div>
+
+                    <div class="field">
+                        <label for="profilePassword">New Password</label>
+                        <input type="password" id="profilePassword" placeholder="Leave empty to keep current password">
+                    </div>
+
+                    <button type="submit" class="primary-btn">
+                        Update Profile
+                    </button>
+                </form>
+
+                <p id="profileMessage"></p>
+
+                <button type="button" id="deleteAccountBtn" class="danger-btn">
+                    Delete My Account
+                </button>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        Festival Social &mdash; Internet Application Development course project
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/nav.js"></script>
+    <script src="/js/users.js"></script>
+</body>
+
+</html>
