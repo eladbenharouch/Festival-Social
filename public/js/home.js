@@ -9,27 +9,24 @@ let toastTimer = null;
 let lastSearchResults = [];
 let searchCoords = null;
 let postCoords = null;
+let feedMode = 'feed';
 
-async function init()
-{
+async function init() {
   const result = await getCurrentUser();
   const user = result && result.user ? result.user : null;
 
   renderNav(navLinks, user, 'home');
 
-  if (user)
-  {
+  if (user) {
     currentUser = user;
     await renderLoggedIn();
   }
-  else
-  {
+  else {
     renderLoggedOut();
   }
 }
 
-function renderLoggedOut()
-{
+function renderLoggedOut() {
   content.innerHTML = `
     <h1>Find your next festival</h1>
     <p class="subtitle">Share experiences, join groups, get live updates from the crowd.</p>
@@ -37,8 +34,7 @@ function renderLoggedOut()
   `;
 }
 
-async function renderLoggedIn()
-{
+async function renderLoggedIn() {
   document.querySelector('main').classList.add('top-align');
   content.classList.remove('card');
   content.classList.add('page-container');
@@ -78,9 +74,22 @@ async function renderLoggedIn()
       </form>
     </section>
       <section>
-      <h2>Your Feed</h2>
-      <div class="posts-list" id="feedList"></div>
-    </section>
+  <div class="feed-header">
+    <h2 id="feedTitle">Your Feed</h2>
+
+    <div class="actions">
+      <button type="button" class="btn-small primary-btn" id="showFeedBtn">
+        Feed
+      </button>
+
+      <button type="button" class="btn-small btn-outline" id="showMyPostsBtn">
+        My Posts
+      </button>
+    </div>
+  </div>
+
+  <div class="posts-list" id="feedList"></div>
+</section>
     <section class="card-flat">
       <h2>Search Posts</h2>
       <form id="postSearchForm" class="inline-form">
@@ -106,55 +115,53 @@ async function renderLoggedIn()
 
   setupCreateForm();
   setupPostSearch();
+  document.getElementById('showFeedBtn').addEventListener('click', () => {
+    feedMode = 'feed';
+    renderPostsList();
+  });
 
+  document.getElementById('showMyPostsBtn').addEventListener('click', () => {
+    feedMode = 'mine';
+    renderPostsList();
+  });
   await Promise.all([loadMyGroupsForSelect(), loadFollowing()]);
   await loadFeed();
 }
 
-async function loadMyGroupsForSelect()
-{
-  try
-  {
+async function loadMyGroupsForSelect() {
+  try {
     const { groups } = await apiRequest('/api/groups/mine');
     const select = document.getElementById('postGroup');
 
-    groups.forEach((group) =>
-    {
+    groups.forEach((group) => {
       const option = document.createElement('option');
       option.value = group._id;
       option.textContent = group.name;
       select.appendChild(option);
     });
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-async function loadFollowing()
-{
-  try
-  {
+async function loadFollowing() {
+  try {
     const { following } = await apiRequest('/api/users/following');
     followingIds = new Set(following.map((id) => id.toString()));
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-async function loadFeed()
-{
-  try
-  {
+async function loadFeed() {
+  try {
     const { posts } = await apiRequest('/api/posts/feed');
     lastPosts = posts;
     renderPostsList();
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
@@ -162,16 +169,39 @@ async function loadFeed()
 function renderPostsList()
 {
   const container = document.getElementById('feedList');
+  const feedTitle = document.getElementById('feedTitle');
+  const showFeedBtn = document.getElementById('showFeedBtn');
+  const showMyPostsBtn = document.getElementById('showMyPostsBtn');
 
-  if (!lastPosts.length)
+  const postsToShow = feedMode === 'mine'
+    ? lastPosts.filter((post) => post.author._id === currentUser.id)
+    : lastPosts;
+
+  if (feedMode === 'mine')
   {
-    container.innerHTML = '<p class="empty-message">Your feed is empty. Join a group, follow someone, or share your first post.</p>';
+    feedTitle.textContent = 'My Posts';
+    showFeedBtn.className = 'btn-small btn-outline';
+    showMyPostsBtn.className = 'btn-small primary-btn';
+  }
+  else
+  {
+    feedTitle.textContent = 'Your Feed';
+    showFeedBtn.className = 'btn-small primary-btn';
+    showMyPostsBtn.className = 'btn-small btn-outline';
+  }
+
+  if (!postsToShow.length)
+  {
+    container.innerHTML = feedMode === 'mine'
+      ? '<p class="empty-message">You have not published any posts yet.</p>'
+      : '<p class="empty-message">Your feed is empty. Join a group, follow someone, or share your first post.</p>';
+
     return;
   }
 
-  container.innerHTML = lastPosts.map((post) => postCardHtml(post)).join('');
+  container.innerHTML = postsToShow.map((post) => postCardHtml(post)).join('');
 
-  lastPosts.forEach((post) =>
+  postsToShow.forEach((post) =>
   {
     if (post._id === editingPostId)
     {
@@ -183,10 +213,8 @@ function renderPostsList()
   });
 }
 
-function postCardHtml(post)
-{
-  if (post._id === editingPostId)
-  {
+function postCardHtml(post) {
+  if (post._id === editingPostId) {
     return editCardHtml(post);
   }
 
@@ -200,8 +228,7 @@ function postCardHtml(post)
 
   let followBtn = '';
 
-  if (!isOwnPost)
-  {
+  if (!isOwnPost) {
     followBtn = isFollowingAuthor
       ? `<button class="btn-small btn-outline" id="unfollow-${post._id}">Following</button>`
       : `<button class="btn-small primary-btn" id="follow-${post._id}">Follow</button>`;
@@ -209,16 +236,14 @@ function postCardHtml(post)
 
   let ownerActions = '';
 
-  if (isOwnPost)
-  {
+  if (isOwnPost) {
     ownerActions = `
       <button class="btn-small btn-outline" id="edit-${post._id}">Edit</button>
       <button class="btn-small btn-danger" id="delete-${post._id}">Delete</button>
     `;
   }
 
-  const commentsHtml = post.comments.map((comment) =>
-  {
+  const commentsHtml = post.comments.map((comment) => {
     const canDelete = comment.author._id === currentUser.id || isOwnPost;
     const deleteBtn = canDelete
       ? `<button id="delcomment-${post._id}-${comment._id}" title="Delete comment">&times;</button>`
@@ -261,8 +286,7 @@ function postCardHtml(post)
   `;
 }
 
-function editCardHtml(post)
-{
+function editCardHtml(post) {
   return `
     <article class="card-flat post-card">
       <h2>Edit Post</h2>
@@ -292,8 +316,7 @@ function editCardHtml(post)
   `;
 }
 
-function wireDisplayCard(post)
-{
+function wireDisplayCard(post) {
   const likeBtn = document.getElementById(`like-${post._id}`);
   const followBtn = document.getElementById(`follow-${post._id}`);
   const unfollowBtn = document.getElementById(`unfollow-${post._id}`);
@@ -301,160 +324,129 @@ function wireDisplayCard(post)
   const deleteBtn = document.getElementById(`delete-${post._id}`);
   const commentForm = document.getElementById(`commentForm-${post._id}`);
 
-  if (likeBtn)
-  {
+  if (likeBtn) {
     likeBtn.addEventListener('click', () => handleLike(post._id));
   }
 
-  if (followBtn)
-  {
+  if (followBtn) {
     followBtn.addEventListener('click', () => handleFollow(post.author._id));
   }
 
-  if (unfollowBtn)
-  {
+  if (unfollowBtn) {
     unfollowBtn.addEventListener('click', () => handleUnfollow(post.author._id));
   }
 
-  if (editBtn)
-  {
-    editBtn.addEventListener('click', () =>
-    {
+  if (editBtn) {
+    editBtn.addEventListener('click', () => {
       editingPostId = post._id;
       renderPostsList();
     });
   }
 
-  if (deleteBtn)
-  {
+  if (deleteBtn) {
     deleteBtn.addEventListener('click', () => handleDeletePost(post._id));
   }
 
-  if (commentForm)
-  {
+  if (commentForm) {
     commentForm.addEventListener('submit', (event) => handleAddComment(event, post._id));
   }
 
-  post.comments.forEach((comment) =>
-  {
+  post.comments.forEach((comment) => {
     const delBtn = document.getElementById(`delcomment-${post._id}-${comment._id}`);
 
-    if (delBtn)
-    {
+    if (delBtn) {
       delBtn.addEventListener('click', () => handleDeleteComment(post._id, comment._id));
     }
   });
 }
 
-function wireEditForm(post)
-{
+function wireEditForm(post) {
   const editForm = document.getElementById(`editForm-${post._id}`);
   const cancelBtn = document.getElementById(`cancelEdit-${post._id}`);
 
   editForm.addEventListener('submit', (event) => handleEditSubmit(event, post._id));
 
-  cancelBtn.addEventListener('click', () =>
-  {
+  cancelBtn.addEventListener('click', () => {
     editingPostId = null;
     renderPostsList();
   });
 }
 
-async function handleLike(postId)
-{
-  try
-  {
+async function handleLike(postId) {
+  try {
     await apiRequest(`/api/posts/${postId}/like`, { method: 'POST' });
     await loadFeed();
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-async function handleFollow(authorId)
-{
-  try
-  {
+async function handleFollow(authorId) {
+  try {
     await apiRequest(`/api/users/${authorId}/follow`, { method: 'POST' });
     showToast('You are now following this user', 'success');
     await loadFollowing();
     await loadFeed();
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-async function handleUnfollow(authorId)
-{
-  try
-  {
+async function handleUnfollow(authorId) {
+  try {
     await apiRequest(`/api/users/${authorId}/unfollow`, { method: 'POST' });
     showToast('Unfollowed', 'success');
     await loadFollowing();
     await loadFeed();
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-async function handleDeletePost(postId)
-{
-  try
-  {
+async function handleDeletePost(postId) {
+  try {
     await apiRequest(`/api/posts/${postId}`, { method: 'DELETE' });
     showToast('Post deleted', 'success');
     await loadFeed();
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-async function handleAddComment(event, postId)
-{
+async function handleAddComment(event, postId) {
   event.preventDefault();
 
   const input = document.getElementById(`commentInput-${postId}`);
   const text = input.value.trim();
 
-  if (!text)
-  {
+  if (!text) {
     return;
   }
 
-  try
-  {
+  try {
     await apiRequest(`/api/posts/${postId}/comments`, { method: 'POST', body: JSON.stringify({ text }) });
     await loadFeed();
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-async function handleDeleteComment(postId, commentId)
-{
-  try
-  {
+async function handleDeleteComment(postId, commentId) {
+  try {
     await apiRequest(`/api/posts/${postId}/comments/${commentId}`, { method: 'DELETE' });
     await loadFeed();
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-async function handleEditSubmit(event, postId)
-{
+async function handleEditSubmit(event, postId) {
   event.preventDefault();
 
   const errorEl = document.getElementById(`editError-${postId}`);
@@ -466,50 +458,43 @@ async function handleEditSubmit(event, postId)
   const content = document.getElementById(`editContent-${postId}`).value.trim();
   const isLive = document.getElementById(`editIsLive-${postId}`).checked;
 
-  try
-  {
+  try {
     await apiRequest(`/api/posts/${postId}`,
-    {
-      method: 'PUT',
-      body: JSON.stringify({ title, content, mediaUrl, genre, isLive })
-    });
+      {
+        method: 'PUT',
+        body: JSON.stringify({ title, content, mediaUrl, genre, isLive })
+      });
 
     editingPostId = null;
     showToast('Post updated', 'success');
     await loadFeed();
   }
-  catch (err)
-  {
+  catch (err) {
     errorEl.textContent = err.message;
     errorEl.classList.add('visible');
   }
 }
 
-function setupCreateForm()
-{
+function setupCreateForm() {
   const form = document.getElementById('createPostForm');
   const errorEl = document.getElementById('createError');
- const locationBtn = document.getElementById('usePostLocation');
-const locationStatus = document.getElementById('postLocationStatus');
+  const locationBtn = document.getElementById('usePostLocation');
+  const locationStatus = document.getElementById('postLocationStatus');
 
-locationBtn.addEventListener('click', async () =>
-{
-  locationStatus.textContent = 'Getting location...';
+  locationBtn.addEventListener('click', async () => {
+    locationStatus.textContent = 'Getting location...';
 
-  try
-  {
-    postCoords = await getCurrentCoords();
-    locationStatus.textContent = 'Location added ✓';
-  }
-  catch (err)
-  {
-    postCoords = null;
-    locationStatus.textContent = 'Could not get location';
-  }
-});
+    try {
+      postCoords = await getCurrentCoords();
+      locationStatus.textContent = 'Location added ✓';
+    }
+    catch (err) {
+      postCoords = null;
+      locationStatus.textContent = 'Could not get location';
+    }
+  });
 
-  form.addEventListener('submit', async (event) =>
-  {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
     errorEl.classList.remove('visible');
 
@@ -520,39 +505,37 @@ locationBtn.addEventListener('click', async () =>
     const content = document.getElementById('postContent').value.trim();
     const isLive = document.getElementById('postIsLive').checked;
 
-    try
-    {
+    try {
       await apiRequest('/api/posts',
-      {
-        method: 'POST',
-body: JSON.stringify(
-{
-  title,
-  content,
-  mediaUrl,
-  genre,
-  group: group || undefined,
-  isLive,
-  lat: postCoords ? postCoords.lat : undefined,
-lng: postCoords ? postCoords.lng : undefined
-})      });
+        {
+          method: 'POST',
+          body: JSON.stringify(
+            {
+              title,
+              content,
+              mediaUrl,
+              genre,
+              group: group || undefined,
+              isLive,
+              lat: postCoords ? postCoords.lat : undefined,
+              lng: postCoords ? postCoords.lng : undefined
+            })
+        });
 
       form.reset();
       postCoords = null;
-document.getElementById('postLocationStatus').textContent = '';
+      document.getElementById('postLocationStatus').textContent = '';
       showToast('Post created!', 'success');
       await loadFeed();
     }
-    catch (err)
-    {
+    catch (err) {
       errorEl.textContent = err.message;
       errorEl.classList.add('visible');
     }
   });
 }
 
-function showToast(message, type)
-{
+function showToast(message, type) {
   const toast = document.getElementById('toast');
   toast.textContent = message;
   toast.className = `toast visible ${type}`;
@@ -561,12 +544,9 @@ function showToast(message, type)
   toastTimer = setTimeout(() => toast.classList.remove('visible'), 3000);
 }
 
-function getCurrentCoords()
-{
-  return new Promise((resolve, reject) =>
-  {
-    if (!navigator.geolocation)
-    {
+function getCurrentCoords() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
       reject(new Error('Geolocation is not supported by your browser'));
       return;
     }
@@ -578,32 +558,26 @@ function getCurrentCoords()
   });
 }
 
-function setupPostSearch()
-{
+function setupPostSearch() {
   const form = document.getElementById('postSearchForm');
   const nearMeCheckbox = document.getElementById('searchNearMe');
   const errorEl = document.getElementById('searchError');
 
-  form.addEventListener('submit', async (event) =>
-  {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
     errorEl.classList.remove('visible');
 
-    if (nearMeCheckbox.checked)
-    {
-      try
-      {
+    if (nearMeCheckbox.checked) {
+      try {
         searchCoords = await getCurrentCoords();
       }
-      catch (err)
-      {
+      catch (err) {
         errorEl.textContent = 'Could not get your location: ' + err.message;
         errorEl.classList.add('visible');
         return;
       }
     }
-    else
-    {
+    else {
       searchCoords = null;
     }
 
@@ -611,27 +585,22 @@ function setupPostSearch()
   });
 }
 
-async function loadPostSearch()
-{
-  try
-  {
+async function loadPostSearch() {
+  try {
     const genre = document.getElementById('searchGenre').value.trim();
     const isLive = document.getElementById('searchIsLive').value;
 
     const params = new URLSearchParams();
 
-    if (genre)
-    {
+    if (genre) {
       params.set('genre', genre);
     }
 
-    if (isLive)
-    {
+    if (isLive) {
       params.set('isLive', isLive);
     }
 
-    if (searchCoords)
-    {
+    if (searchCoords) {
       params.set('lat', searchCoords.lat);
       params.set('lng', searchCoords.lng);
       params.set('maxDistance', 20000);
@@ -642,28 +611,23 @@ async function loadPostSearch()
     lastSearchResults = posts;
     renderSearchResultsList();
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-function renderSearchResultsList()
-{
+function renderSearchResultsList() {
   const container = document.getElementById('searchResultsList');
 
-  if (!lastSearchResults.length)
-  {
+  if (!lastSearchResults.length) {
     container.innerHTML = '<p class="empty-message">No posts found.</p>';
     return;
   }
 
   container.innerHTML = lastSearchResults.map((post) => postCardHtml(post)).join('');
 
-  lastSearchResults.forEach((post) =>
-  {
-    if (post._id === editingPostId)
-    {
+  lastSearchResults.forEach((post) => {
+    if (post._id === editingPostId) {
       wireEditForm(post);
       return;
     }
