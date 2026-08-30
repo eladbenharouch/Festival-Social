@@ -22,6 +22,7 @@ function renderNav(navElement, user, currentPage)
     <li><a href="/map.html" class="${currentPage === 'map' ? 'active' : ''}">Map</a></li>
     <li><a href="/weather.html" class="${currentPage === 'weather' ? 'active' : ''}">Weather</a></li>
     <li><a href="/stats.html" class="${currentPage === 'stats' ? 'active' : ''}">Statistics</a></li>
+    <li><a href="/about.html" class="${currentPage === 'about' ? 'active' : ''}">About</a></li>
     <li>Hey, ${escapeHtml(user.username)}</li>
     <li><a href="#" id="logoutLink">Logout</a></li>
   `;
