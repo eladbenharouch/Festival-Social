@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
+const Post = require('../models/Post');
 
 async function register(req, res)
 {
@@ -117,13 +118,44 @@ async function getMyFollowing(req, res)
 {
   try
   {
-    const user = await User.findById(req.session.userId).select('following');
-    return res.status(200).json({ following: user.following });
+    const user = await User.findById(req.session.userId)
+      .populate('following', 'username avatarUrl favoriteGenres');
+
+    if (!user)
+    {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.status(200).json({
+      following: user.following
+    });
   }
   catch (err)
   {
     console.error('Get following error:', err.message);
-    return res.status(500).json({ error: 'Server error while fetching following list' });
+    return res.status(500).json({
+      error: 'Server error while fetching following list'
+    });
+  }
+}
+async function getMyFollowers(req, res)
+{
+  try
+  {
+    const followers = await User.find({
+      following: req.session.userId
+    }).select('username avatarUrl favoriteGenres');
+
+    return res.status(200).json({
+      followers
+    });
+  }
+  catch (err)
+  {
+    console.error('Get followers error:', err.message);
+    return res.status(500).json({
+      error: 'Server error while fetching followers list'
+    });
   }
 }
 
@@ -203,5 +235,293 @@ async function unfollowUser(req, res)
     return res.status(500).json({ error: 'Server error while unfollowing user' });
   }
 }
+async function getAllUsers(req, res)
+{
+  try
+  {
+    const users = await User.find()
+      .select('username email avatarUrl favoriteGenres')
+      .sort({ username: 1 });
 
-module.exports = { register, login, logout, getCurrentUser, getMyFollowing, followUser, unfollowUser };
+    return res.status(200).json({ users });
+  }
+  catch (err)
+  {
+    console.error('Get users error:', err.message);
+    return res.status(500).json({ error: 'Server error while fetching users' });
+  }
+}
+
+async function searchUsers(req, res)
+{
+  try
+  {
+    const { username, email, genre } = req.query;
+
+    const filter = {};
+
+    if (username)
+    {
+      filter.username = { $regex: username, $options: 'i' };
+    }
+
+    if (email)
+    {
+      filter.email = { $regex: email, $options: 'i' };
+    }
+
+    if (genre)
+    {
+      filter.favoriteGenres = { $regex: genre, $options: 'i' };
+    }
+
+    const users = await User.find(filter)
+      .select('username email avatarUrl favoriteGenres')
+      .sort({ username: 1 });
+
+    return res.status(200).json({ users });
+  }
+  catch (err)
+  {
+    console.error('Search users error:', err.message);
+    return res.status(500).json({ error: 'Server error while searching users' });
+  }
+}
+
+async function updateCurrentUser(req, res)
+{
+  try
+  {
+    const user = await User.findById(req.session.userId);
+
+    if (!user)
+    {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const { username, email, password, avatarUrl, favoriteGenres } = req.body;
+
+    if (username !== undefined)
+    {
+      user.username = username.trim();
+    }
+
+    if (email !== undefined)
+    {
+      user.email = email.trim().toLowerCase();
+    }
+
+    if (avatarUrl !== undefined)
+    {
+      user.avatarUrl = avatarUrl.trim();
+    }
+
+    if (favoriteGenres !== undefined)
+    {
+      user.favoriteGenres = Array.isArray(favoriteGenres)
+        ? favoriteGenres
+        : [];
+    }
+
+    if (password)
+    {
+      if (password.length < 6)
+      {
+        return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+      }
+
+      user.password = password;
+    }
+
+    await user.save();
+
+    return res.status(200).json({ user: user.toSafeObject() });
+  }
+  catch (err)
+  {
+    if (err.code === 11000)
+    {
+      return res.status(409).json({ error: 'Username or email already in use' });
+    }
+
+    console.error('Update user error:', err.message);
+    return res.status(500).json({ error: 'Server error while updating user' });
+  }
+}
+async function deleteCurrentUser(req, res)
+{
+  try
+  {
+    const user = await User.findById(req.session.userId);
+
+    if (!user)
+    {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    await User.findByIdAndDelete(req.session.userId);
+
+    req.session.destroy((err) =>
+    {
+      if (err)
+      {
+        console.error('Delete user session error:', err.message);
+        return res.status(500).json({ error: 'User deleted, but session cleanup failed' });
+      }
+
+      res.clearCookie('connect.sid');
+      return res.status(200).json({ message: 'User deleted successfully' });
+    });
+  }
+  catch (err)
+  {
+    console.error('Delete user error:', err.message);
+    return res.status(500).json({ error: 'Server error while deleting user' });
+  }
+}
+async function getMyProfileStats(req, res)
+{
+  try
+  {
+    const userId = req.session.userId;
+
+    const user = await User.findById(userId).select('following');
+
+    if (!user)
+    {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const [postsCount, followersCount] = await Promise.all([
+      Post.countDocuments({ author: userId }),
+      User.countDocuments({ following: userId })
+    ]);
+
+    return res.status(200).json({
+      postsCount,
+      followersCount,
+      followingCount: user.following.length
+    });
+  }
+  catch (err)
+  {
+    console.error('Get profile stats error:', err.message);
+    return res.status(500).json({ error: 'Server error while fetching profile stats' });
+  }
+}
+async function getUserProfile(req, res)
+{
+  try
+  {
+    const user = await User.findById(req.params.id)
+      .select('username avatarUrl favoriteGenres following');
+
+    if (!user)
+    {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const [postsCount, followersCount] = await Promise.all([
+      Post.countDocuments({ author: user._id }),
+      User.countDocuments({ following: user._id })
+    ]);
+
+    const currentUser = await User.findById(req.session.userId)
+      .select('following');
+
+    const isFollowing = currentUser
+      ? currentUser.following.some(
+          (id) => String(id) === String(user._id)
+        )
+      : false;
+
+    return res.status(200).json({
+      user: {
+        id: user._id,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        favoriteGenres: user.favoriteGenres
+      },
+      stats: {
+        postsCount,
+        followersCount,
+        followingCount: user.following.length
+      },
+      isFollowing
+    });
+  }
+  catch (err)
+  {
+    console.error('Get user profile error:', err.message);
+    return res.status(500).json({
+      error: 'Server error while fetching user profile'
+    });
+  }
+}
+async function getUserFollowers(req, res)
+{
+  try
+  {
+    const followers = await User.find({
+      following: req.params.id
+    })
+      .select('username avatarUrl favoriteGenres')
+      .sort({ username: 1 });
+
+    return res.status(200).json({
+      followers
+    });
+  }
+  catch (err)
+  {
+    console.error('Get user followers error:', err.message);
+    return res.status(500).json({
+      error: 'Server error while fetching user followers'
+    });
+  }
+}
+
+async function getUserFollowing(req, res)
+{
+  try
+  {
+    const user = await User.findById(req.params.id)
+      .populate('following', 'username avatarUrl favoriteGenres');
+
+    if (!user)
+    {
+      return res.status(404).json({
+        error: 'User not found'
+      });
+    }
+
+    return res.status(200).json({
+      following: user.following
+    });
+  }
+  catch (err)
+  {
+    console.error('Get user following error:', err.message);
+    return res.status(500).json({
+      error: 'Server error while fetching user following'
+    });
+  }
+}
+module.exports = {
+  register,
+  login,
+  logout,
+  getCurrentUser,
+  getMyFollowing,
+  getMyFollowers,
+  followUser,
+  unfollowUser,
+  getAllUsers,
+  searchUsers,
+  updateCurrentUser,
+  deleteCurrentUser,
+  getMyProfileStats,
+  getUserProfile,
+  getUserFollowers,
+  getUserFollowing
+};

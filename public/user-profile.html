@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile - Festival Social</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="logo">Festival Social</div>
+
+    <nav class="site-nav">
+      <ul id="navLinks"></ul>
+    </nav>
+  </header>
+
+  <div class="toast" id="toast"></div>
+
+  <main class="top-align">
+    <div class="page-container">
+
+      <section class="profile-header card-flat">
+
+        <div
+          id="profileAvatarLarge"
+          class="profile-avatar-large">
+        </div>
+
+        <div class="profile-summary">
+
+          <div class="profile-title-row">
+            <h1 id="profileUsername">@username</h1>
+
+            <button
+              id="followUserBtn"
+              class="primary-btn btn-small">
+              Follow
+            </button>
+          </div>
+
+          <div class="profile-stats">
+
+            <div class="profile-stat">
+              <strong id="postsCount">0</strong>
+              <span>Posts</span>
+            </div>
+
+            <button
+              type="button"
+              id="followersBtn"
+              class="profile-stat profile-stat-btn">
+              <strong id="followersCount">0</strong>
+              <span>Followers</span>
+            </button>
+
+            <button
+              type="button"
+              id="followingBtn"
+              class="profile-stat profile-stat-btn">
+              <strong id="followingCount">0</strong>
+              <span>Following</span>
+            </button>
+
+          </div>
+
+          <p id="profileGenresText"></p>
+
+        </div>
+      </section>
+
+      <section>
+        <h2>Posts</h2>
+
+        <div
+          id="profilePostsGrid"
+          class="profile-posts-grid">
+        </div>
+
+        <p id="profilePostsMessage"></p>
+      </section>
+
+      <div
+        id="usersModal"
+        class="users-modal"
+        hidden>
+
+        <div class="users-modal-content">
+
+          <div class="users-modal-header">
+            <h2 id="usersModalTitle">Users</h2>
+
+            <button
+              type="button"
+              id="closeUsersModalBtn">
+              ×
+            </button>
+          </div>
+
+          <div id="usersModalList"></div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Festival Social &mdash; Internet Application Development course project
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/user-profile.js"></script>
+
+</body>
+
+</html>
