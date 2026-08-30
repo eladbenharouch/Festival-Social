@@ -2,12 +2,10 @@ let currentUser = null;
 let currentFilters = {};
 let toastTimer = null;
 
-async function init()
-{
+async function init() {
   const result = await getCurrentUser();
 
-  if (!result || !result.user)
-  {
+  if (!result || !result.user) {
     window.location.href = '/login.html';
     return;
   }
@@ -21,35 +19,28 @@ async function init()
   await Promise.all([loadMyGroups(), loadAllGroups()]);
 }
 
-async function loadMyGroups()
-{
-  try
-  {
+async function loadMyGroups() {
+  try {
     const { groups } = await apiRequest('/api/groups/mine');
     renderGroupGrid(document.getElementById('myGroupsGrid'), groups, "You haven't joined any groups yet.");
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-async function loadAllGroups(filters = currentFilters)
-{
+async function loadAllGroups(filters = currentFilters) {
   const params = new URLSearchParams();
 
-  if (filters.name)
-  {
+  if (filters.name) {
     params.set('name', filters.name);
   }
 
-  if (filters.category)
-  {
+  if (filters.category) {
     params.set('category', filters.category);
   }
 
-  if (filters.sortBy)
-  {
+  if (filters.sortBy) {
     params.set('sortBy', filters.sortBy);
   }
 
@@ -58,41 +49,38 @@ async function loadAllGroups(filters = currentFilters)
   renderGroupGrid(document.getElementById('allGroupsGrid'), groups, 'No groups found.');
 }
 
-function renderGroupGrid(container, groups, emptyMessage)
-{
-  if (!groups.length)
-  {
+function renderGroupGrid(container, groups, emptyMessage) {
+  if (!groups.length) {
     container.innerHTML = `<p class="empty-message">${emptyMessage}</p>`;
     return;
   }
 
   container.innerHTML = groups.map((group) => groupCardHtml(group)).join('');
 
-  groups.forEach((group) =>
-  {
-    const joinBtn = document.getElementById(`join-${group._id}`);
-    const leaveBtn = document.getElementById(`leave-${group._id}`);
-    const deleteBtn = document.getElementById(`delete-${group._id}`);
-
-    if (joinBtn)
-    {
+  groups.forEach((group) => {
+    const joinBtn = container.querySelector(`[data-join="${group._id}"]`);
+    const leaveBtn = container.querySelector(`[data-leave="${group._id}"]`);
+    const editBtn = container.querySelector(`[data-edit="${group._id}"]`);
+    const deleteBtn = container.querySelector(`[data-delete="${group._id}"]`);
+    if (joinBtn) {
       joinBtn.addEventListener('click', () => handleJoin(group._id));
     }
 
-    if (leaveBtn)
-    {
+    if (leaveBtn) {
       leaveBtn.addEventListener('click', () => handleLeave(group._id));
     }
 
-    if (deleteBtn)
-    {
+    if (editBtn) {
+      editBtn.addEventListener('click', () => handleEdit(group));
+    }
+
+    if (deleteBtn) {
       deleteBtn.addEventListener('click', () => handleDelete(group._id));
     }
   });
 }
 
-function groupCardHtml(group)
-{
+function groupCardHtml(group) {
   const creatorId = group.creator && group.creator._id ? group.creator._id : group.creator;
   const creatorName = group.creator && group.creator.username ? group.creator.username : 'Unknown';
   const isCreator = creatorId === currentUser.id;
@@ -102,17 +90,17 @@ function groupCardHtml(group)
 
   let actionsHtml;
 
-  if (isCreator)
-  {
-    actionsHtml = `<button class="btn-small btn-danger" id="delete-${group._id}">Delete</button>`;
+  if (isCreator) {
+    actionsHtml = `
+    <button class="btn-small btn-outline" data-edit="${group._id}">Edit</button>
+    <button class="btn-small btn-danger" data-delete="${group._id}">Delete</button>
+  `;
   }
-  else if (isMember)
-  {
-    actionsHtml = `<button class="btn-small btn-outline" id="leave-${group._id}">Leave</button>`;
+  else if (isMember) {
+    actionsHtml = `<button class="btn-small btn-outline" data-leave="${group._id}">Leave</button>`;
   }
-  else
-  {
-    actionsHtml = `<button class="btn-small primary-btn" id="join-${group._id}">Join</button>`;
+  else {
+    actionsHtml = `<button class="btn-small primary-btn" data-join="${group._id}">Join</button>`;
   }
 
   return `
@@ -126,55 +114,87 @@ function groupCardHtml(group)
   `;
 }
 
-async function handleJoin(groupId)
-{
-  try
-  {
+async function handleJoin(groupId) {
+  try {
     await apiRequest(`/api/groups/${groupId}/join`, { method: 'POST' });
     showToast('Joined group!', 'success');
     await Promise.all([loadMyGroups(), loadAllGroups()]);
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
+async function handleEdit(group) {
+  const newName = prompt('Group name:', group.name);
+  if (newName === null) {
+    return;
+  }
 
-async function handleLeave(groupId)
-{
-  try
-  {
+  const newCategory = prompt('Category:', group.category);
+  if (newCategory === null) {
+    return;
+  }
+
+  const newDescription = prompt('Description:', group.description || '');
+  if (newDescription === null) {
+    return;
+  }
+
+  const name = newName.trim();
+  const category = newCategory.trim();
+  const description = newDescription.trim();
+
+  if (!name || !category) {
+    showToast('Name and category are required', 'error');
+    return;
+  }
+
+  try {
+    await apiRequest(`/api/groups/${group._id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(
+          {
+            name,
+            category,
+            description
+          })
+      });
+
+    showToast('Group updated!', 'success');
+    await Promise.all([loadMyGroups(), loadAllGroups()]);
+  }
+  catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+async function handleLeave(groupId) {
+  try {
     await apiRequest(`/api/groups/${groupId}/leave`, { method: 'POST' });
     showToast('Left the group', 'success');
     await Promise.all([loadMyGroups(), loadAllGroups()]);
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-async function handleDelete(groupId)
-{
-  try
-  {
+async function handleDelete(groupId) {
+  try {
     await apiRequest(`/api/groups/${groupId}`, { method: 'DELETE' });
     showToast('Group deleted', 'success');
     await Promise.all([loadMyGroups(), loadAllGroups()]);
   }
-  catch (err)
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-function setupCreateForm()
-{
+function setupCreateForm() {
   const form = document.getElementById('createGroupForm');
   const errorEl = document.getElementById('createError');
 
-  form.addEventListener('submit', async (event) =>
-  {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
     errorEl.classList.remove('visible');
 
@@ -182,30 +202,26 @@ function setupCreateForm()
     const category = document.getElementById('groupCategory').value.trim();
     const description = document.getElementById('groupDescription').value.trim();
 
-    try
-    {
+    try {
       await apiRequest('/api/groups',
-      {
-        method: 'POST',
-        body: JSON.stringify({ name, category, description })
-      });
+        {
+          method: 'POST',
+          body: JSON.stringify({ name, category, description })
+        });
 
       form.reset();
       showToast('Group created!', 'success');
       await Promise.all([loadMyGroups(), loadAllGroups()]);
     }
-    catch (err)
-    {
+    catch (err) {
       errorEl.textContent = err.message;
       errorEl.classList.add('visible');
     }
   });
 }
 
-function setupSearch()
-{
-  document.getElementById('searchBtn').addEventListener('click', async (event) =>
-  {
+function setupSearch() {
+  document.getElementById('searchBtn').addEventListener('click', async (event) => {
     event.preventDefault();
 
     currentFilters =
@@ -219,8 +235,7 @@ function setupSearch()
   });
 }
 
-function showToast(message, type)
-{
+function showToast(message, type) {
   const toast = document.getElementById('toast');
   toast.textContent = message;
   toast.className = `toast visible ${type}`;
