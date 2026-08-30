@@ -8,6 +8,7 @@ let editingPostId = null;
 let toastTimer = null;
 let lastSearchResults = [];
 let searchCoords = null;
+let postCoords = null;
 
 async function init()
 {
@@ -64,6 +65,11 @@ async function renderLoggedIn()
           <input type="text" id="postMediaUrl" maxlength="500" placeholder="Optional link">
         </div>
         <div class="field" style="flex-basis:100%;">
+                <div class="field" style="flex-basis:100%;">
+          <label>Location</label>
+          <button type="button" id="usePostLocation" class="btn-small btn-outline">Use my location</button>
+          <span id="postLocationStatus"></span>
+        </div>
           <label for="postContent">Content</label>
           <textarea id="postContent" required maxlength="3000" rows="3"></textarea>
         </div>
@@ -483,6 +489,24 @@ function setupCreateForm()
 {
   const form = document.getElementById('createPostForm');
   const errorEl = document.getElementById('createError');
+ const locationBtn = document.getElementById('usePostLocation');
+const locationStatus = document.getElementById('postLocationStatus');
+
+locationBtn.addEventListener('click', async () =>
+{
+  locationStatus.textContent = 'Getting location...';
+
+  try
+  {
+    postCoords = await getCurrentCoords();
+    locationStatus.textContent = 'Location added ✓';
+  }
+  catch (err)
+  {
+    postCoords = null;
+    locationStatus.textContent = 'Could not get location';
+  }
+});
 
   form.addEventListener('submit', async (event) =>
   {
@@ -501,10 +525,21 @@ function setupCreateForm()
       await apiRequest('/api/posts',
       {
         method: 'POST',
-        body: JSON.stringify({ title, content, mediaUrl, genre, group: group || undefined, isLive })
-      });
+body: JSON.stringify(
+{
+  title,
+  content,
+  mediaUrl,
+  genre,
+  group: group || undefined,
+  isLive,
+  lat: postCoords ? postCoords.lat : undefined,
+lng: postCoords ? postCoords.lng : undefined
+})      });
 
       form.reset();
+      postCoords = null;
+document.getElementById('postLocationStatus').textContent = '';
       showToast('Post created!', 'success');
       await loadFeed();
     }
