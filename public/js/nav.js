@@ -16,9 +16,10 @@ function renderNav(navElement, user, currentPage)
     return;
   }
 
-  navElement.innerHTML = `
+    navElement.innerHTML = `
     <li><a href="/" class="${currentPage === 'home' ? 'active' : ''}">Feed</a></li>
     <li><a href="/groups.html" class="${currentPage === 'groups' ? 'active' : ''}">Groups</a></li>
+    <li><a href="/weather.html" class="${currentPage === 'weather' ? 'active' : ''}">Weather</a></li>
     <li>Hey, ${escapeHtml(user.username)}</li>
     <li><a href="#" id="logoutLink">Logout</a></li>
   `;
