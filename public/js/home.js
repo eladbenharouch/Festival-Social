@@ -10,6 +10,7 @@ let lastSearchResults = [];
 let searchCoords = null;
 let postCoords = null;
 let feedMode = 'feed';
+let editPostCoords = null;
 
 async function init() {
   const result = await getCurrentUser();
@@ -166,8 +167,7 @@ async function loadFeed() {
   }
 }
 
-function renderPostsList()
-{
+function renderPostsList() {
   const container = document.getElementById('feedList');
   const feedTitle = document.getElementById('feedTitle');
   const showFeedBtn = document.getElementById('showFeedBtn');
@@ -177,21 +177,18 @@ function renderPostsList()
     ? lastPosts.filter((post) => post.author._id === currentUser.id)
     : lastPosts;
 
-  if (feedMode === 'mine')
-  {
+  if (feedMode === 'mine') {
     feedTitle.textContent = 'My Posts';
     showFeedBtn.className = 'btn-small btn-outline';
     showMyPostsBtn.className = 'btn-small primary-btn';
   }
-  else
-  {
+  else {
     feedTitle.textContent = 'Your Feed';
     showFeedBtn.className = 'btn-small primary-btn';
     showMyPostsBtn.className = 'btn-small btn-outline';
   }
 
-  if (!postsToShow.length)
-  {
+  if (!postsToShow.length) {
     container.innerHTML = feedMode === 'mine'
       ? '<p class="empty-message">You have not published any posts yet.</p>'
       : '<p class="empty-message">Your feed is empty. Join a group, follow someone, or share your first post.</p>';
@@ -201,10 +198,8 @@ function renderPostsList()
 
   container.innerHTML = postsToShow.map((post) => postCardHtml(post)).join('');
 
-  postsToShow.forEach((post) =>
-  {
-    if (post._id === editingPostId)
-    {
+  postsToShow.forEach((post) => {
+    if (post._id === editingPostId) {
       wireEditForm(post);
       return;
     }
@@ -305,6 +300,13 @@ function editCardHtml(post) {
           <input type="text" id="editMediaUrl-${post._id}" maxlength="500" value="${escapeHtml(post.mediaUrl || '')}">
         </div>
         <div class="field" style="flex-basis:100%;">
+  <label>Location</label>
+  <button type="button" class="btn-small btn-outline" id="editLocation-${post._id}">
+    Use my location
+  </button>
+  <span id="editLocationStatus-${post._id}"></span>
+</div>
+        <div class="field" style="flex-basis:100%;">
           <label for="editContent-${post._id}">Content</label>
           <textarea id="editContent-${post._id}" required maxlength="3000" rows="3">${escapeHtml(post.content)}</textarea>
         </div>
@@ -363,6 +365,24 @@ function wireDisplayCard(post) {
 function wireEditForm(post) {
   const editForm = document.getElementById(`editForm-${post._id}`);
   const cancelBtn = document.getElementById(`cancelEdit-${post._id}`);
+  const locationBtn = document.getElementById(`editLocation-${post._id}`);
+const locationStatus = document.getElementById(`editLocationStatus-${post._id}`);
+
+locationBtn.addEventListener('click', async () =>
+{
+  locationStatus.textContent = 'Getting location...';
+
+  try
+  {
+    editPostCoords = await getCurrentCoords();
+    locationStatus.textContent = 'Location updated ✓';
+  }
+  catch (err)
+  {
+    editPostCoords = null;
+    locationStatus.textContent = 'Could not get location';
+  }
+});
 
   editForm.addEventListener('submit', (event) => handleEditSubmit(event, post._id));
 
@@ -462,10 +482,19 @@ async function handleEditSubmit(event, postId) {
     await apiRequest(`/api/posts/${postId}`,
       {
         method: 'PUT',
-        body: JSON.stringify({ title, content, mediaUrl, genre, isLive })
-      });
+body: JSON.stringify(
+{
+  title,
+  content,
+  mediaUrl,
+  genre,
+  isLive,
+  lat: editPostCoords ? editPostCoords.lat : undefined,
+  lng: editPostCoords ? editPostCoords.lng : undefined
+})      });
 
     editingPostId = null;
+    editPostCoords = null;
     showToast('Post updated', 'success');
     await loadFeed();
   }

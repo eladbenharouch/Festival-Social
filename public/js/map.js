@@ -61,7 +61,8 @@ async function loadPostMarkers()
 {
   position: { lat, lng },
   map,
-  title: post.title
+  title: post.title,
+  gmpClickable: true
 });
 
 marker.addEventListener('gmp-click', () =>
