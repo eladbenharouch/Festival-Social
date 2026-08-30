@@ -8,6 +8,7 @@ const { MongoStore } = require('connect-mongo');
 const userRoutes = require('./routes/userRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const postRoutes = require('./routes/postRoutes');
+const statsRoutes = require('./routes/statsRoutes');
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -28,6 +29,7 @@ app.use(session(
 app.use('/api/users', userRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/stats', statsRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 3000;
