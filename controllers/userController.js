@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const Post = require('../models/Post');
 
+function escapeRegex(text)
+{
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 async function register(req, res)
 {
   try
@@ -13,19 +18,34 @@ async function register(req, res)
       return res.status(400).json({ error: 'Username, email and password are required' });
     }
 
+    const trimmedUsername = username.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+
+    if (!trimmedUsername)
+    {
+      return res.status(400).json({ error: 'Username cannot be empty' });
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailPattern.test(trimmedEmail))
+    {
+      return res.status(400).json({ error: 'Please provide a valid email address' });
+    }
+
     if (password.length < 6)
     {
       return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
 
-    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    const existingUser = await User.findOne({ $or: [{ username: trimmedUsername }, { email: trimmedEmail }] });
 
     if (existingUser)
     {
       return res.status(409).json({ error: 'Username or email already in use' });
     }
 
-    const user = await User.create({ username, email, password });
+    const user = await User.create({ username: trimmedUsername, email: trimmedEmail, password });
 
     req.session.userId = user._id.toString();
 
@@ -260,19 +280,19 @@ async function searchUsers(req, res)
 
     const filter = {};
 
-    if (username)
+        if (username)
     {
-      filter.username = { $regex: username, $options: 'i' };
+      filter.username = { $regex: escapeRegex(username), $options: 'i' };
     }
 
     if (email)
     {
-      filter.email = { $regex: email, $options: 'i' };
+      filter.email = { $regex: escapeRegex(email), $options: 'i' };
     }
 
     if (genre)
     {
-      filter.favoriteGenres = { $regex: genre, $options: 'i' };
+      filter.favoriteGenres = { $regex: escapeRegex(genre), $options: 'i' };
     }
 
     const users = await User.find(filter)
@@ -413,6 +433,13 @@ async function getUserProfile(req, res)
 {
   try
   {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id))
+    {
+      return res.status(400).json({ error: 'Invalid user id' });
+    }
+
     const user = await User.findById(req.params.id)
       .select('username avatarUrl favoriteGenres following');
 
@@ -462,6 +489,13 @@ async function getUserFollowers(req, res)
 {
   try
   {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id))
+    {
+      return res.status(400).json({ error: 'Invalid user id' });
+    }
+
     const followers = await User.find({
       following: req.params.id
     })
@@ -485,6 +519,13 @@ async function getUserFollowing(req, res)
 {
   try
   {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id))
+    {
+      return res.status(400).json({ error: 'Invalid user id' });
+    }
+
     const user = await User.findById(req.params.id)
       .populate('following', 'username avatarUrl favoriteGenres');
 

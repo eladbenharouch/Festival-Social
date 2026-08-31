@@ -144,12 +144,26 @@ async function handleEdit(group) {
   const category = newCategory.trim();
   const description = newDescription.trim();
 
-  if (!name || !category) {
+      if (!name && !category)
+   {
     showToast('Name and category are required', 'error');
+    return;
+    }
+
+  if (!name) 
+    {
+    showToast('Group name is required', 'error');
     return;
   }
 
-  try {
+  if (!category) 
+    {
+    showToast('Category is required', 'error');
+    return;
+  }
+
+  try 
+  {
     await apiRequest(`/api/groups/${group._id}`,
       {
         method: 'PUT',
@@ -164,7 +178,8 @@ async function handleEdit(group) {
     showToast('Group updated!', 'success');
     await Promise.all([loadMyGroups(), loadAllGroups()]);
   }
-  catch (err) {
+  catch (err) 
+  {
     showToast(err.message, 'error');
   }
 }

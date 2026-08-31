@@ -12,22 +12,69 @@ function isMember(group, userId)
   return group.members.some((memberId) => memberId.toString() === userId);
 }
 
+function validateGroupFields(name, description, category)
+{
+  if (name !== undefined && name.trim().length === 0)
+  {
+    return 'Group name cannot be empty';
+  }
+
+  if (name !== undefined && name.trim().length > 60)
+  {
+    return 'Group name must be 60 characters or fewer';
+  }
+
+  if (category !== undefined && category.trim().length === 0)
+  {
+    return 'Category cannot be empty';
+  }
+
+  if (category !== undefined && category.trim().length > 40)
+  {
+    return 'Category must be 40 characters or fewer';
+  }
+
+  if (description !== undefined && description.length > 300)
+  {
+    return 'Description must be 300 characters or fewer';
+  }
+
+  return null;
+}
+
 async function createGroup(req, res)
 {
   try
   {
     const { name, description, category } = req.body;
 
-    if (!name || !category)
+        if (!name && !category)
     {
       return res.status(400).json({ error: 'Group name and category are required' });
     }
 
+    if (!name)
+    {
+      return res.status(400).json({ error: 'Group name is required' });
+    }
+
+    if (!category)
+    {
+      return res.status(400).json({ error: 'Category is required' });
+    }
+
+    const validationError = validateGroupFields(name, description, category);
+
+    if (validationError)
+    {
+      return res.status(400).json({ error: validationError });
+    }
+
     const group = await Group.create(
     {
-      name,
-      description: description || '',
-      category,
+      name: name.trim(),
+      description: description ? description.trim() : '',
+      category: category.trim(),
       creator: req.session.userId,
       members: [req.session.userId]
     });
@@ -146,19 +193,26 @@ async function updateGroup(req, res)
 
     const { name, description, category } = req.body;
 
+    const validationError = validateGroupFields(name, description, category);
+
+    if (validationError)
+    {
+      return res.status(400).json({ error: validationError });
+    }
+
     if (name)
     {
-      group.name = name;
+      group.name = name.trim();
     }
 
     if (description !== undefined)
     {
-      group.description = description;
+      group.description = description.trim();
     }
 
     if (category)
     {
-      group.category = category;
+      group.category = category.trim();
     }
 
     await group.save();
