@@ -623,6 +623,69 @@ usersModal.addEventListener(
   }
 );
 
+/* =========================
+   DELETE ACCOUNT
+========================= */
+
+const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+
+deleteAccountBtn.addEventListener(
+  'click',
+  async () =>
+  {
+    const confirmed =
+      window.confirm(
+        'Are you sure you want to delete your account? This action is permanent and cannot be undone.'
+      );
+
+    if (!confirmed)
+    {
+      return;
+    }
+
+    deleteAccountBtn.disabled = true;
+
+    try
+    {
+      const response =
+        await fetch(
+          '/api/users/me',
+          {
+            method: 'DELETE'
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (!response.ok)
+      {
+        alert(
+          data.error ||
+          'Failed to delete account'
+        );
+
+        deleteAccountBtn.disabled = false;
+
+        return;
+      }
+
+      window.location.href =
+        '/login.html';
+    }
+    catch (err)
+    {
+      console.error(
+        'Delete account error:',
+        err
+      );
+
+      alert('Failed to delete account');
+
+      deleteAccountBtn.disabled = false;
+    }
+  }
+);
 
 /* =========================
    INIT

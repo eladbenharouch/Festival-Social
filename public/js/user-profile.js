@@ -219,7 +219,9 @@ async function loadUserPosts()
   try
   {
     const response =
-      await fetch('/api/posts/feed');
+      await fetch(
+        `/api/posts/user/${userId}`
+      );
 
     const data =
       await response.json();
@@ -227,30 +229,16 @@ async function loadUserPosts()
     if (!response.ok)
     {
       profilePostsMessage.textContent =
+        data.error ||
         'Failed to load posts';
 
       return;
     }
 
     const posts =
-      data.posts || data || [];
+      data.posts || [];
 
-    const userPosts =
-      posts.filter((post) =>
-      {
-        const authorId =
-          typeof post.author === 'object'
-            ? post.author._id ||
-              post.author.id
-            : post.author;
-
-        return (
-          String(authorId) ===
-          String(userId)
-        );
-      });
-
-    renderUserPosts(userPosts);
+    renderUserPosts(posts);
   }
   catch (err)
   {
@@ -263,7 +251,6 @@ async function loadUserPosts()
       'Failed to load posts';
   }
 }
-
 
 function renderUserPosts(posts)
 {

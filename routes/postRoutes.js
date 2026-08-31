@@ -6,6 +6,7 @@ const { requireAuth } = require('../middleware/authMiddleware');
 router.post('/', requireAuth, postController.createPost);
 router.get('/feed', requireAuth, postController.getFeed);
 router.get('/group/:groupId', postController.getPostsByGroup);
+router.get('/user/:userId', requireAuth, postController.getPostsByUser);
 router.get('/search', postController.searchPosts);
 router.get('/:id', postController.getPostById);
 router.put('/:id', requireAuth, postController.updatePost);
