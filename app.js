@@ -10,6 +10,7 @@ const groupRoutes = require('./routes/groupRoutes');
 const postRoutes = require('./routes/postRoutes');
 const statsRoutes = require('./routes/statsRoutes');
 const weatherRoutes = require('./routes/weatherRoutes');
+const { requireAuth } = require('./middleware/authMiddleware');
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -32,7 +33,7 @@ app.use('/api/groups', groupRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/weather', weatherRoutes);
-app.get('/api/maps-key', (req, res) =>
+app.get('/api/maps-key', requireAuth, (req, res) =>
 {
   res.json({ key: process.env.GOOGLE_MAPS_API_KEY });
 });
