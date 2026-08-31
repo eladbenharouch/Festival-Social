@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Post = require('../models/Post');
+const Group = require('../models/Group');
 
 function escapeRegex(text)
 {
@@ -368,18 +369,36 @@ async function updateCurrentUser(req, res)
     return res.status(500).json({ error: 'Server error while updating user' });
   }
 }
+
 async function deleteCurrentUser(req, res)
 {
   try
   {
-    const user = await User.findById(req.session.userId);
+    const userId = req.session.userId;
+
+    const user = await User.findById(userId);
 
     if (!user)
     {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    await User.findByIdAndDelete(req.session.userId);
+    const ownedGroups = await Group.find({ creator: userId }).select('_id');
+    const ownedGroupIds = ownedGroups.map((group) => group._id);
+
+    await Post.deleteMany({ author: userId });
+
+    if (ownedGroupIds.length)
+    {
+      await Post.updateMany({ group: { $in: ownedGroupIds } }, { $set: { group: null } });
+      await Group.deleteMany({ _id: { $in: ownedGroupIds } });
+    }
+
+    await Group.updateMany({}, { $pull: { members: userId } });
+    await User.updateMany({}, { $pull: { following: userId } });
+    await Post.updateMany({}, { $pull: { likedBy: userId } });
+
+    await User.findByIdAndDelete(userId);
 
     req.session.destroy((err) =>
     {
@@ -399,6 +418,7 @@ async function deleteCurrentUser(req, res)
     return res.status(500).json({ error: 'Server error while deleting user' });
   }
 }
+
 async function getMyProfileStats(req, res)
 {
   try
