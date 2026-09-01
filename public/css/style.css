@@ -1241,3 +1241,109 @@ footer.site-footer {
     height: 380px;
   }
 }
+/* =========================================
+   Personalized Feed + Registration Genres
+   ========================================= */
+
+/* Registration genre selection */
+
+.genre-selection-field {
+  flex-basis: 100%;
+  margin-top: 0.5rem;
+}
+
+.genre-selection-help {
+  margin: 0.35rem 0 0.9rem;
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.genre-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.genre-option {
+  position: relative;
+  cursor: pointer;
+}
+
+.genre-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.genre-option span {
+  display: inline-block;
+  padding: 0.65rem 1rem;
+  border: 1px solid #dbdbdb;
+  border-radius: 999px;
+  background: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.genre-option span:hover {
+  border-color: #999;
+  transform: translateY(-1px);
+}
+
+.genre-option input:checked + span {
+  background: #111111;
+  color: #ffffff;
+  border-color: #111111;
+}
+
+
+/* Personalized feed sections */
+
+.feed-section-heading {
+  margin: 1.5rem 0 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.feed-section-heading h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.feed-section-heading .subtitle {
+  margin: 0.35rem 0 0;
+}
+
+.discover-heading {
+  margin-top: 3rem;
+}
+
+.recommended-posts,
+.discover-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+
+/* Small mobile adjustments */
+
+@media (max-width: 700px) {
+  .genre-options {
+    gap: 0.5rem;
+  }
+
+  .genre-option span {
+    padding: 0.55rem 0.8rem;
+    font-size: 0.86rem;
+  }
+
+  .discover-heading {
+    margin-top: 2.25rem;
+  }
+}

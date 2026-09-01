@@ -3,7 +3,11 @@ const content = document.getElementById('content');
 
 let currentUser = null;
 let followingIds = new Set();
+
 let lastPosts = [];
+let recommendedPosts = [];
+let discoverPosts = [];
+
 let editingPostId = null;
 let toastTimer = null;
 let lastSearchResults = [];
@@ -36,13 +40,20 @@ function renderLoggedOut()
 {
   content.innerHTML = `
     <h1>Find your next festival</h1>
+
     <p class="subtitle">
       Share experiences, join groups, get live updates from the crowd.
     </p>
+
     <a
       href="/register.html"
       class="primary-btn"
-      style="display:block; text-align:center; text-decoration:none; margin-top:1.5rem;"
+      style="
+        display:block;
+        text-align:center;
+        text-decoration:none;
+        margin-top:1.5rem;
+      "
     >
       Get Started
     </a>
@@ -51,7 +62,9 @@ function renderLoggedOut()
 
 async function renderLoggedIn()
 {
-  document.querySelector('main').classList.add('top-align');
+  document
+    .querySelector('main')
+    .classList.add('top-align');
 
   content.classList.remove('card');
   content.classList.add('page-container');
@@ -60,12 +73,21 @@ async function renderLoggedIn()
     <section class="card-flat">
       <h2>Share something</h2>
 
-      <p class="error-message" id="createError"></p>
+      <p
+        class="error-message"
+        id="createError"
+      ></p>
 
-      <form id="createPostForm" class="inline-form">
+      <form
+        id="createPostForm"
+        class="inline-form"
+      >
 
         <div class="field">
-          <label for="postTitle">Title</label>
+          <label for="postTitle">
+            Title
+          </label>
+
           <input
             type="text"
             id="postTitle"
@@ -76,7 +98,10 @@ async function renderLoggedIn()
         </div>
 
         <div class="field">
-          <label for="postGenre">Genre</label>
+          <label for="postGenre">
+            Genre
+          </label>
+
           <input
             type="text"
             id="postGenre"
@@ -86,14 +111,22 @@ async function renderLoggedIn()
         </div>
 
         <div class="field">
-          <label for="postGroup">Group</label>
+          <label for="postGroup">
+            Group
+          </label>
+
           <select id="postGroup">
-            <option value="">No group</option>
+            <option value="">
+              No group
+            </option>
           </select>
         </div>
 
         <div class="field">
-          <label for="postMediaUrl">Media URL</label>
+          <label for="postMediaUrl">
+            Media URL
+          </label>
+
           <input
             type="text"
             id="postMediaUrl"
@@ -102,8 +135,13 @@ async function renderLoggedIn()
           >
         </div>
 
-        <div class="field" style="flex-basis:100%;">
-          <label>Location</label>
+        <div
+          class="field"
+          style="flex-basis:100%;"
+        >
+          <label>
+            Location
+          </label>
 
           <button
             type="button"
@@ -116,8 +154,13 @@ async function renderLoggedIn()
           <span id="postLocationStatus"></span>
         </div>
 
-        <div class="field" style="flex-basis:100%;">
-          <label for="postContent">Content</label>
+        <div
+          class="field"
+          style="flex-basis:100%;"
+        >
+          <label for="postContent">
+            Content
+          </label>
 
           <textarea
             id="postContent"
@@ -128,21 +171,33 @@ async function renderLoggedIn()
         </div>
 
         <label class="checkbox-field">
-          <input type="checkbox" id="postIsLive">
+          <input
+            type="checkbox"
+            id="postIsLive"
+          >
+
           This is a live crowd update
         </label>
 
-        <button type="submit" class="primary-btn btn-small">
+        <button
+          type="submit"
+          class="primary-btn btn-small"
+        >
           Post
         </button>
+
       </form>
     </section>
 
     <section>
       <div class="feed-header">
-        <h2 id="feedTitle">Your Feed</h2>
+
+        <h2 id="feedTitle">
+          Your Feed
+        </h2>
 
         <div class="actions">
+
           <button
             type="button"
             class="btn-small primary-btn"
@@ -158,19 +213,29 @@ async function renderLoggedIn()
           >
             My Posts
           </button>
+
         </div>
       </div>
 
-      <div class="posts-list" id="feedList"></div>
+      <div
+        class="posts-list"
+        id="feedList"
+      ></div>
     </section>
 
     <section class="card-flat">
       <h2>Search Posts</h2>
 
-      <form id="postSearchForm" class="inline-form">
+      <form
+        id="postSearchForm"
+        class="inline-form"
+      >
 
         <div class="field">
-          <label for="searchGenre">Genre</label>
+          <label for="searchGenre">
+            Genre
+          </label>
+
           <input
             type="text"
             id="searchGenre"
@@ -180,26 +245,47 @@ async function renderLoggedIn()
         </div>
 
         <div class="field">
-          <label for="searchIsLive">Live status</label>
+          <label for="searchIsLive">
+            Live status
+          </label>
 
           <select id="searchIsLive">
-            <option value="">All posts</option>
-            <option value="true">Live only</option>
-            <option value="false">Non-live only</option>
+            <option value="">
+              All posts
+            </option>
+
+            <option value="true">
+              Live only
+            </option>
+
+            <option value="false">
+              Non-live only
+            </option>
           </select>
         </div>
 
         <label class="checkbox-field">
-          <input type="checkbox" id="searchNearMe">
+          <input
+            type="checkbox"
+            id="searchNearMe"
+          >
+
           Near my location
         </label>
 
-        <button type="submit" class="primary-btn btn-small">
+        <button
+          type="submit"
+          class="primary-btn btn-small"
+        >
           Search
         </button>
+
       </form>
 
-      <p class="error-message" id="searchError"></p>
+      <p
+        class="error-message"
+        id="searchError"
+      ></p>
 
       <div
         class="posts-list"
@@ -213,19 +299,25 @@ async function renderLoggedIn()
 
   document
     .getElementById('showFeedBtn')
-    .addEventListener('click', () =>
-    {
-      feedMode = 'feed';
-      renderPostsList();
-    });
+    .addEventListener(
+      'click',
+      () =>
+      {
+        feedMode = 'feed';
+        renderPostsList();
+      }
+    );
 
   document
     .getElementById('showMyPostsBtn')
-    .addEventListener('click', () =>
-    {
-      feedMode = 'mine';
-      renderPostsList();
-    });
+    .addEventListener(
+      'click',
+      () =>
+      {
+        feedMode = 'mine';
+        renderPostsList();
+      }
+    );
 
   await Promise.all(
   [
@@ -241,25 +333,41 @@ async function loadMyGroupsForSelect()
   try
   {
     const { groups } =
-      await apiRequest('/api/groups/mine');
+      await apiRequest(
+        '/api/groups/mine'
+      );
 
     const select =
-      document.getElementById('postGroup');
+      document.getElementById(
+        'postGroup'
+      );
 
-    groups.forEach((group) =>
-    {
-      const option =
-        document.createElement('option');
+    groups.forEach(
+      (group) =>
+      {
+        const option =
+          document.createElement(
+            'option'
+          );
 
-      option.value = group._id;
-      option.textContent = group.name;
+        option.value =
+          group._id;
 
-      select.appendChild(option);
-    });
+        option.textContent =
+          group.name;
+
+        select.appendChild(
+          option
+        );
+      }
+    );
   }
   catch (err)
   {
-    showToast(err.message, 'error');
+    showToast(
+      err.message,
+      'error'
+    );
   }
 }
 
@@ -268,18 +376,28 @@ async function loadFollowing()
   try
   {
     const { following } =
-      await apiRequest('/api/users/following');
+      await apiRequest(
+        '/api/users/following'
+      );
 
     followingIds =
       new Set(
         following.map(
-          id => id.toString()
+          user =>
+            String(
+              user._id ||
+              user.id ||
+              user
+            )
         )
       );
   }
   catch (err)
   {
-    showToast(err.message, 'error');
+    showToast(
+      err.message,
+      'error'
+    );
   }
 }
 
@@ -287,92 +405,262 @@ async function loadFeed()
 {
   try
   {
-    const { posts } =
-      await apiRequest('/api/posts/feed');
+    const result =
+      await apiRequest(
+        '/api/posts/feed'
+      );
 
-    lastPosts = posts;
+    lastPosts =
+      result.posts || [];
+
+    recommendedPosts =
+      result.recommendedPosts || [];
+
+    discoverPosts =
+      result.discoverPosts || [];
 
     renderPostsList();
   }
   catch (err)
   {
-    showToast(err.message, 'error');
+    showToast(
+      err.message,
+      'error'
+    );
   }
 }
 
 function renderPostsList()
 {
   const container =
-    document.getElementById('feedList');
+    document.getElementById(
+      'feedList'
+    );
 
   const feedTitle =
-    document.getElementById('feedTitle');
+    document.getElementById(
+      'feedTitle'
+    );
 
   const showFeedBtn =
-    document.getElementById('showFeedBtn');
+    document.getElementById(
+      'showFeedBtn'
+    );
 
   const showMyPostsBtn =
-    document.getElementById('showMyPostsBtn');
-
-  const postsToShow =
-    feedMode === 'mine'
-      ? lastPosts.filter(
-          post =>
-            post.author._id ===
-            currentUser.id
-        )
-      : lastPosts;
+    document.getElementById(
+      'showMyPostsBtn'
+    );
 
   if (feedMode === 'mine')
   {
-    feedTitle.textContent = 'My Posts';
+    feedTitle.textContent =
+      'My Posts';
 
     showFeedBtn.className =
       'btn-small btn-outline';
 
     showMyPostsBtn.className =
       'btn-small primary-btn';
+
+    const myPosts =
+      lastPosts.filter(
+        post =>
+          String(post.author._id) ===
+          String(currentUser.id)
+      );
+
+    if (!myPosts.length)
+    {
+      container.innerHTML = `
+        <p class="empty-message">
+          You have not published any posts yet.
+        </p>
+      `;
+
+      return;
+    }
+
+    container.innerHTML =
+      myPosts
+        .map(
+          post =>
+            postCardHtml(post)
+        )
+        .join('');
+
+    myPosts.forEach(
+      (post) =>
+      {
+        if (
+          post._id ===
+          editingPostId
+        )
+        {
+          wireEditForm(post);
+          return;
+        }
+
+        wireDisplayCard(post);
+      }
+    );
+
+    setupVideoAutoplay(
+      container
+    );
+
+    return;
+  }
+
+  feedTitle.textContent =
+    'Your Feed';
+
+  showFeedBtn.className =
+    'btn-small primary-btn';
+
+  showMyPostsBtn.className =
+    'btn-small btn-outline';
+
+  const favoriteGenres =
+    Array.isArray(
+      currentUser.favoriteGenres
+    )
+      ? currentUser.favoriteGenres
+      : [];
+
+  const genreText =
+    favoriteGenres.length
+      ? favoriteGenres.join(' • ')
+      : '';
+
+  let html = '';
+
+  html += `
+    <div class="feed-section-heading">
+
+      <h2>
+        Recommended for you
+      </h2>
+
+      ${
+        genreText
+          ? `
+            <p class="subtitle">
+              Based on your favorite genres:
+              <strong>
+                ${escapeHtml(genreText)}
+              </strong>
+            </p>
+          `
+          : `
+            <p class="subtitle">
+              Posts selected for you
+            </p>
+          `
+      }
+
+    </div>
+  `;
+
+  if (recommendedPosts.length)
+  {
+    html += `
+      <div class="recommended-posts">
+
+        ${recommendedPosts
+          .map(
+            post =>
+              postCardHtml(post)
+          )
+          .join('')}
+
+      </div>
+    `;
   }
   else
   {
-    feedTitle.textContent = 'Your Feed';
-
-    showFeedBtn.className =
-      'btn-small primary-btn';
-
-    showMyPostsBtn.className =
-      'btn-small btn-outline';
+    html += `
+      <p class="empty-message">
+        We don't have posts for your favorite genres yet.
+      </p>
+    `;
   }
 
-  if (!postsToShow.length)
+  if (discoverPosts.length)
   {
-    container.innerHTML =
-      feedMode === 'mine'
-        ? '<p class="empty-message">You have not published any posts yet.</p>'
-        : '<p class="empty-message">Your feed is empty. Join a group, follow someone, or share your first post.</p>';
+    html += `
+      <div
+        class="
+          feed-section-heading
+          discover-heading
+        "
+      >
+
+        <h2>
+          Discover new genres
+        </h2>
+
+        <p class="subtitle">
+          Explore music outside your usual favorites.
+        </p>
+
+      </div>
+
+      <div class="discover-posts">
+
+        ${discoverPosts
+          .map(
+            post =>
+              postCardHtml(post)
+          )
+          .join('')}
+
+      </div>
+    `;
+  }
+
+  if (
+    !recommendedPosts.length &&
+    !discoverPosts.length
+  )
+  {
+    container.innerHTML = `
+      <p class="empty-message">
+        No posts are available yet.
+      </p>
+    `;
 
     return;
   }
 
   container.innerHTML =
-    postsToShow
-      .map(
-        post => postCardHtml(post)
-      )
-      .join('');
+    html;
 
-  postsToShow.forEach((post) =>
-  {
-    if (post._id === editingPostId)
+  const displayedPosts =
+  [
+    ...recommendedPosts,
+    ...discoverPosts
+  ];
+
+  displayedPosts.forEach(
+    (post) =>
     {
-      wireEditForm(post);
-      return;
+      if (
+        post._id ===
+        editingPostId
+      )
+      {
+        wireEditForm(post);
+        return;
+      }
+
+      wireDisplayCard(post);
     }
+  );
 
-    wireDisplayCard(post);
-  });
-
-  setupVideoAutoplay(container);
+  setupVideoAutoplay(
+    container
+  );
 }
 
 function getMediaHtml(post)
@@ -383,7 +671,9 @@ function getMediaHtml(post)
   }
 
   const mediaUrl =
-    escapeHtml(post.mediaUrl);
+    escapeHtml(
+      post.mediaUrl
+    );
 
   const cleanUrl =
     post.mediaUrl
@@ -400,6 +690,7 @@ function getMediaHtml(post)
   {
     return `
       <div class="post-media-wrapper">
+
         <video
           class="post-media post-media-video"
           src="${mediaUrl}"
@@ -411,48 +702,78 @@ function getMediaHtml(post)
         >
           Your browser does not support video.
         </video>
+
       </div>
     `;
   }
 
   return `
     <div class="post-media-wrapper">
+
       <img
         class="post-media"
         src="${mediaUrl}"
         alt="Post media"
         loading="lazy"
       >
+
     </div>
   `;
 }
 
 function postCardHtml(post)
 {
-  if (post._id === editingPostId)
+  if (
+    post._id ===
+    editingPostId
+  )
   {
-    return editCardHtml(post);
+    return editCardHtml(
+      post
+    );
   }
 
   const isOwnPost =
-    post.author._id === currentUser.id;
+    String(post.author._id) ===
+    String(currentUser.id);
 
   const isFollowingAuthor =
-    followingIds.has(post.author._id);
+    followingIds.has(
+      String(post.author._id)
+    );
 
   const isLiked =
     post.likedBy.some(
-      userId => userId === currentUser.id
+      userId =>
+        String(userId) ===
+        String(currentUser.id)
     );
 
   const groupBadge =
     post.group
-      ? `<span class="category-badge">${escapeHtml(post.group.name)}</span>`
+      ? `
+        <span class="category-badge">
+          ${escapeHtml(post.group.name)}
+        </span>
+      `
+      : '';
+
+  const genreBadge =
+    post.genre
+      ? `
+        <span class="category-badge">
+          ${escapeHtml(post.genre)}
+        </span>
+      `
       : '';
 
   const liveBadge =
     post.isLive
-      ? '<span class="live-badge">LIVE</span>'
+      ? `
+        <span class="live-badge">
+          LIVE
+        </span>
+      `
       : '';
 
   const mediaHtml =
@@ -460,26 +781,24 @@ function postCardHtml(post)
 
   let followBtn = '';
 
-  if (!isOwnPost)
+  /*
+    A Follow button appears directly
+    on posts from users that the
+    current user does not follow.
+  */
+  if (
+    !isOwnPost &&
+    !isFollowingAuthor
+  )
   {
-    followBtn =
-      isFollowingAuthor
-        ? `
-          <button
-            class="btn-small btn-outline"
-            id="unfollow-${post._id}"
-          >
-            Following
-          </button>
-        `
-        : `
-          <button
-            class="btn-small primary-btn"
-            id="follow-${post._id}"
-          >
-            Follow
-          </button>
-        `;
+    followBtn = `
+      <button
+        class="btn-small primary-btn"
+        id="follow-${post._id}"
+      >
+        Follow
+      </button>
+    `;
   }
 
   let ownerActions = '';
@@ -505,45 +824,64 @@ function postCardHtml(post)
 
   const commentsHtml =
     post.comments
-      .map((comment) =>
-      {
-        const canDelete =
-          comment.author._id === currentUser.id ||
-          isOwnPost;
+      .map(
+        (comment) =>
+        {
+          const canDelete =
+            String(
+              comment.author._id
+            ) ===
+            String(
+              currentUser.id
+            ) ||
+            isOwnPost;
 
-        const deleteBtn =
-          canDelete
-            ? `
-              <button
-                id="delcomment-${post._id}-${comment._id}"
-                title="Delete comment"
-              >
-                &times;
-              </button>
-            `
-            : '';
+          const deleteBtn =
+            canDelete
+              ? `
+                <button
+                  id="delcomment-${post._id}-${comment._id}"
+                  title="Delete comment"
+                >
+                  &times;
+                </button>
+              `
+              : '';
 
-        return `
-          <li class="comment-item">
-            <span class="comment-author">
-              ${escapeHtml(comment.author.username)}:
-            </span>
+          return `
+            <li class="comment-item">
 
-            ${escapeHtml(comment.text)}
+              <span class="comment-author">
+                ${escapeHtml(comment.author.username)}:
+              </span>
 
-            ${deleteBtn}
-          </li>
-        `;
-      })
+              ${escapeHtml(comment.text)}
+
+              ${deleteBtn}
+
+            </li>
+          `;
+        }
+      )
       .join('');
 
   return `
     <article
-      class="card-flat post-card ${post.isLive ? 'live' : ''}"
+      class="
+        card-flat
+        post-card
+        ${post.isLive ? 'live' : ''}
+      "
     >
+
       <div class="post-header">
+
         ${liveBadge}
+
+        ${genreBadge}
+
         ${groupBadge}
+
       </div>
 
       <h3>
@@ -551,9 +889,16 @@ function postCardHtml(post)
       </h3>
 
       <p class="meta">
-        By ${escapeHtml(post.author.username)}
+
+        By
+        ${escapeHtml(post.author.username)}
+
         &middot;
-        ${new Date(post.createdAt).toLocaleString()}
+
+        ${new Date(
+          post.createdAt
+        ).toLocaleString()}
+
       </p>
 
       <p>
@@ -565,16 +910,31 @@ function postCardHtml(post)
       <div class="post-actions">
 
         <button
-          class="btn-small ${isLiked ? 'primary-btn' : 'btn-outline'}"
+          class="
+            btn-small
+            ${
+              isLiked
+                ? 'primary-btn'
+                : 'btn-outline'
+            }
+          "
           id="like-${post._id}"
         >
-          ${isLiked ? 'Liked' : 'Like'}
+
+          ${
+            isLiked
+              ? 'Liked'
+              : 'Like'
+          }
+
           (${post.likedBy.length})
+
         </button>
 
         ${followBtn}
 
         ${ownerActions}
+
       </div>
 
       <ul class="comment-list">
@@ -585,16 +945,19 @@ function postCardHtml(post)
         class="inline-form"
         id="commentForm-${post._id}"
       >
+
         <div
           class="field"
           style="flex:1;"
         >
+
           <input
             type="text"
             id="commentInput-${post._id}"
             maxlength="500"
             placeholder="Add a comment..."
           >
+
         </div>
 
         <button
@@ -603,7 +966,9 @@ function postCardHtml(post)
         >
           Comment
         </button>
+
       </form>
+
     </article>
   `;
 }
@@ -613,7 +978,9 @@ function editCardHtml(post)
   return `
     <article class="card-flat post-card">
 
-      <h2>Edit Post</h2>
+      <h2>
+        Edit Post
+      </h2>
 
       <p
         class="error-message"
@@ -626,7 +993,10 @@ function editCardHtml(post)
       >
 
         <div class="field">
-          <label for="editTitle-${post._id}">
+
+          <label
+            for="editTitle-${post._id}"
+          >
             Title
           </label>
 
@@ -637,10 +1007,14 @@ function editCardHtml(post)
             maxlength="120"
             value="${escapeHtml(post.title)}"
           >
+
         </div>
 
         <div class="field">
-          <label for="editGenre-${post._id}">
+
+          <label
+            for="editGenre-${post._id}"
+          >
             Genre
           </label>
 
@@ -650,10 +1024,14 @@ function editCardHtml(post)
             maxlength="40"
             value="${escapeHtml(post.genre || '')}"
           >
+
         </div>
 
         <div class="field">
-          <label for="editMediaUrl-${post._id}">
+
+          <label
+            for="editMediaUrl-${post._id}"
+          >
             Media URL
           </label>
 
@@ -663,13 +1041,17 @@ function editCardHtml(post)
             maxlength="500"
             value="${escapeHtml(post.mediaUrl || '')}"
           >
+
         </div>
 
         <div
           class="field"
           style="flex-basis:100%;"
         >
-          <label>Location</label>
+
+          <label>
+            Location
+          </label>
 
           <button
             type="button"
@@ -682,13 +1064,17 @@ function editCardHtml(post)
           <span
             id="editLocationStatus-${post._id}"
           ></span>
+
         </div>
 
         <div
           class="field"
           style="flex-basis:100%;"
         >
-          <label for="editContent-${post._id}">
+
+          <label
+            for="editContent-${post._id}"
+          >
             Content
           </label>
 
@@ -698,9 +1084,11 @@ function editCardHtml(post)
             maxlength="3000"
             rows="3"
           >${escapeHtml(post.content)}</textarea>
+
         </div>
 
         <label class="checkbox-field">
+
           <input
             type="checkbox"
             id="editIsLive-${post._id}"
@@ -708,6 +1096,7 @@ function editCardHtml(post)
           >
 
           This is a live crowd update
+
         </label>
 
         <button
@@ -726,13 +1115,21 @@ function editCardHtml(post)
         </button>
 
       </form>
+
     </article>
   `;
 }
 
-function setupVideoAutoplay(container = document)
+function setupVideoAutoplay(
+  container = document
+)
 {
-  if (!('IntersectionObserver' in window))
+  if (
+    !(
+      'IntersectionObserver'
+      in window
+    )
+  )
   {
     return;
   }
@@ -743,44 +1140,58 @@ function setupVideoAutoplay(container = document)
       new IntersectionObserver(
         (entries) =>
         {
-          entries.forEach((entry) =>
-          {
-            const video = entry.target;
-
-            if (
-              entry.isIntersecting &&
-              entry.intersectionRatio >= 0.6
-            )
+          entries.forEach(
+            (entry) =>
             {
-              document
-                .querySelectorAll('.post-media-video')
-                .forEach((otherVideo) =>
-                {
-                  if (otherVideo !== video)
-                  {
-                    otherVideo.pause();
-                  }
-                });
-
-              video.muted = true;
-
-              const playPromise =
-                video.play();
+              const video =
+                entry.target;
 
               if (
-                playPromise &&
-                typeof playPromise.catch === 'function'
+                entry.isIntersecting &&
+                entry.intersectionRatio >= 0.6
               )
               {
-                playPromise.catch(() => {});
+                document
+                  .querySelectorAll(
+                    '.post-media-video'
+                  )
+                  .forEach(
+                    (otherVideo) =>
+                    {
+                      if (
+                        otherVideo !==
+                        video
+                      )
+                      {
+                        otherVideo.pause();
+                      }
+                    }
+                  );
+
+                video.muted = true;
+
+                const playPromise =
+                  video.play();
+
+                if (
+                  playPromise &&
+                  typeof playPromise.catch ===
+                    'function'
+                )
+                {
+                  playPromise.catch(
+                    () => {}
+                  );
+                }
+              }
+              else
+              {
+                video.pause();
               }
             }
-            else
-            {
-              video.pause();
-            }
-          });
+          );
         },
+
         {
           threshold:
           [
@@ -795,18 +1206,29 @@ function setupVideoAutoplay(container = document)
   }
 
   container
-    .querySelectorAll('.post-media-video')
-    .forEach((video) =>
-    {
-      if (video.dataset.autoplayObserved)
+    .querySelectorAll(
+      '.post-media-video'
+    )
+    .forEach(
+      (video) =>
       {
-        return;
+        if (
+          video.dataset
+            .autoplayObserved
+        )
+        {
+          return;
+        }
+
+        video.dataset
+          .autoplayObserved =
+          'true';
+
+        videoObserver.observe(
+          video
+        );
       }
-
-      video.dataset.autoplayObserved = 'true';
-
-      videoObserver.observe(video);
-    });
+    );
 }
 
 function wireDisplayCard(post)
@@ -819,11 +1241,6 @@ function wireDisplayCard(post)
   const followBtn =
     document.getElementById(
       `follow-${post._id}`
-    );
-
-  const unfollowBtn =
-    document.getElementById(
-      `unfollow-${post._id}`
     );
 
   const editBtn =
@@ -845,7 +1262,10 @@ function wireDisplayCard(post)
   {
     likeBtn.addEventListener(
       'click',
-      () => handleLike(post._id)
+      () =>
+        handleLike(
+          post._id
+        )
     );
   }
 
@@ -853,15 +1273,10 @@ function wireDisplayCard(post)
   {
     followBtn.addEventListener(
       'click',
-      () => handleFollow(post.author._id)
-    );
-  }
-
-  if (unfollowBtn)
-  {
-    unfollowBtn.addEventListener(
-      'click',
-      () => handleUnfollow(post.author._id)
+      () =>
+        handleFollow(
+          post.author._id
+        )
     );
   }
 
@@ -871,7 +1286,9 @@ function wireDisplayCard(post)
       'click',
       () =>
       {
-        editingPostId = post._id;
+        editingPostId =
+          post._id;
+
         renderPostsList();
       }
     );
@@ -881,7 +1298,10 @@ function wireDisplayCard(post)
   {
     deleteBtn.addEventListener(
       'click',
-      () => handleDeletePost(post._id)
+      () =>
+        handleDeletePost(
+          post._id
+        )
     );
   }
 
@@ -897,25 +1317,27 @@ function wireDisplayCard(post)
     );
   }
 
-  post.comments.forEach((comment) =>
-  {
-    const delBtn =
-      document.getElementById(
-        `delcomment-${post._id}-${comment._id}`
-      );
-
-    if (delBtn)
+  post.comments.forEach(
+    (comment) =>
     {
-      delBtn.addEventListener(
-        'click',
-        () =>
-          handleDeleteComment(
-            post._id,
-            comment._id
-          )
-      );
+      const delBtn =
+        document.getElementById(
+          `delcomment-${post._id}-${comment._id}`
+        );
+
+      if (delBtn)
+      {
+        delBtn.addEventListener(
+          'click',
+          () =>
+            handleDeleteComment(
+              post._id,
+              comment._id
+            )
+        );
+      }
     }
-  });
+  );
 }
 
 function wireEditForm(post)
@@ -1001,7 +1423,10 @@ async function handleLike(postId)
   }
   catch (err)
   {
-    showToast(err.message, 'error');
+    showToast(
+      err.message,
+      'error'
+    );
   }
 }
 
@@ -1026,7 +1451,10 @@ async function handleFollow(authorId)
   }
   catch (err)
   {
-    showToast(err.message, 'error');
+    showToast(
+      err.message,
+      'error'
+    );
   }
 }
 
@@ -1051,7 +1479,10 @@ async function handleUnfollow(authorId)
   }
   catch (err)
   {
-    showToast(err.message, 'error');
+    showToast(
+      err.message,
+      'error'
+    );
   }
 }
 
@@ -1075,7 +1506,10 @@ async function handleDeletePost(postId)
   }
   catch (err)
   {
-    showToast(err.message, 'error');
+    showToast(
+      err.message,
+      'error'
+    );
   }
 }
 
@@ -1105,6 +1539,7 @@ async function handleAddComment(
       `/api/posts/${postId}/comments`,
       {
         method: 'POST',
+
         body: JSON.stringify(
         {
           text
@@ -1116,7 +1551,10 @@ async function handleAddComment(
   }
   catch (err)
   {
-    showToast(err.message, 'error');
+    showToast(
+      err.message,
+      'error'
+    );
   }
 }
 
@@ -1138,7 +1576,10 @@ async function handleDeleteComment(
   }
   catch (err)
   {
-    showToast(err.message, 'error');
+    showToast(
+      err.message,
+      'error'
+    );
   }
 }
 
@@ -1154,7 +1595,9 @@ async function handleEditSubmit(
       `editError-${postId}`
     );
 
-  errorEl.classList.remove('visible');
+  errorEl.classList.remove(
+    'visible'
+  );
 
   const title =
     document
@@ -1203,7 +1646,10 @@ async function handleEditSubmit(
         body: JSON.stringify(
         {
           title,
-          content: contentValue,
+
+          content:
+            contentValue,
+
           mediaUrl,
           genre,
           isLive,
@@ -1233,8 +1679,12 @@ async function handleEditSubmit(
   }
   catch (err)
   {
-    errorEl.textContent = err.message;
-    errorEl.classList.add('visible');
+    errorEl.textContent =
+      err.message;
+
+    errorEl.classList.add(
+      'visible'
+    );
   }
 }
 
@@ -1297,13 +1747,17 @@ function setupCreateForm()
 
       const title =
         document
-          .getElementById('postTitle')
+          .getElementById(
+            'postTitle'
+          )
           .value
           .trim();
 
       const genre =
         document
-          .getElementById('postGenre')
+          .getElementById(
+            'postGenre'
+          )
           .value
           .trim();
 
@@ -1343,12 +1797,16 @@ function setupCreateForm()
             body: JSON.stringify(
             {
               title,
-              content: postContent,
+
+              content:
+                postContent,
+
               mediaUrl,
               genre,
 
               group:
-                group || undefined,
+                group ||
+                undefined,
 
               isLive,
 
@@ -1366,6 +1824,7 @@ function setupCreateForm()
         );
 
         form.reset();
+
         postCoords = null;
 
         document.getElementById(
@@ -1392,24 +1851,34 @@ function setupCreateForm()
   );
 }
 
-function showToast(message, type)
+function showToast(
+  message,
+  type
+)
 {
   const toast =
-    document.getElementById('toast');
+    document.getElementById(
+      'toast'
+    );
 
-  toast.textContent = message;
+  toast.textContent =
+    message;
 
   toast.className =
     `toast visible ${type}`;
 
-  clearTimeout(toastTimer);
+  clearTimeout(
+    toastTimer
+  );
 
   toastTimer =
     setTimeout(
       () =>
+      {
         toast.classList.remove(
           'visible'
-        ),
+        );
+      },
       3000
     );
 }
@@ -1419,7 +1888,9 @@ function getCurrentCoords()
   return new Promise(
     (resolve, reject) =>
     {
-      if (!navigator.geolocation)
+      if (
+        !navigator.geolocation
+      )
       {
         reject(
           new Error(
@@ -1437,10 +1908,14 @@ function getCurrentCoords()
             resolve(
             {
               lat:
-                position.coords.latitude,
+                position
+                  .coords
+                  .latitude,
 
               lng:
-                position.coords.longitude
+                position
+                  .coords
+                  .longitude
             });
           },
 
@@ -1485,7 +1960,9 @@ function setupPostSearch()
         'visible'
       );
 
-      if (nearMeCheckbox.checked)
+      if (
+        nearMeCheckbox.checked
+      )
       {
         try
         {
@@ -1574,16 +2051,24 @@ async function loadPostSearch()
 
     const { posts } =
       await apiRequest(
-        `/api/posts/search${query ? '?' + query : ''}`
+        `/api/posts/search${
+          query
+            ? '?' + query
+            : ''
+        }`
       );
 
-    lastSearchResults = posts;
+    lastSearchResults =
+      posts;
 
     renderSearchResultsList();
   }
   catch (err)
   {
-    showToast(err.message, 'error');
+    showToast(
+      err.message,
+      'error'
+    );
   }
 }
 
@@ -1594,10 +2079,15 @@ function renderSearchResultsList()
       'searchResultsList'
     );
 
-  if (!lastSearchResults.length)
+  if (
+    !lastSearchResults.length
+  )
   {
-    container.innerHTML =
-      '<p class="empty-message">No posts found.</p>';
+    container.innerHTML = `
+      <p class="empty-message">
+        No posts found.
+      </p>
+    `;
 
     return;
   }
@@ -1605,14 +2095,18 @@ function renderSearchResultsList()
   container.innerHTML =
     lastSearchResults
       .map(
-        post => postCardHtml(post)
+        post =>
+          postCardHtml(post)
       )
       .join('');
 
   lastSearchResults.forEach(
     (post) =>
     {
-      if (post._id === editingPostId)
+      if (
+        post._id ===
+        editingPostId
+      )
       {
         wireEditForm(post);
         return;
@@ -1622,7 +2116,9 @@ function renderSearchResultsList()
     }
   );
 
-  setupVideoAutoplay(container);
+  setupVideoAutoplay(
+    container
+  );
 }
 
 init();
