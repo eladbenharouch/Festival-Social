@@ -12,9 +12,7 @@ let editingPostId = null;
 let toastTimer = null;
 let lastSearchResults = [];
 let searchCoords = null;
-let postCoords = null;
 let feedMode = 'feed';
-let editPostCoords = null;
 
 let videoObserver = null;
 
@@ -202,19 +200,16 @@ async function renderLoggedIn()
           class="field"
           style="flex-basis:100%;"
         >
-          <label>
-            Location
+          <label for="postCity">
+            Location (city, country)
           </label>
 
-          <button
-            type="button"
-            id="usePostLocation"
-            class="btn-small btn-outline"
+          <input
+            type="text"
+            id="postCity"
+            maxlength="200"
+            placeholder="e.g. Tel Aviv, Israel"
           >
-            Use my location
-          </button>
-
-          <span id="postLocationStatus"></span>
         </div>
 
         <div
@@ -892,6 +887,16 @@ function postCardHtml(post)
         ${escapeHtml(post.title)}
       </h3>
 
+      ${
+        post.locationName
+          ? `
+            <p class="meta post-location">
+              📍 ${escapeHtml(post.locationName)}
+            </p>
+          `
+          : ''
+      }
+
       <p class="meta">
 
         By
@@ -1053,21 +1058,18 @@ function editCardHtml(post)
           style="flex-basis:100%;"
         >
 
-          <label>
-            Location
+          <label
+            for="editCity-${post._id}"
+          >
+            Location (city, country)
           </label>
 
-          <button
-            type="button"
-            class="btn-small btn-outline"
-            id="editLocation-${post._id}"
+          <input
+            type="text"
+            id="editCity-${post._id}"
+            maxlength="200"
+            value="${escapeHtml(post.locationName || '')}"
           >
-            Use my location
-          </button>
-
-          <span
-            id="editLocationStatus-${post._id}"
-          ></span>
 
         </div>
 
@@ -1372,41 +1374,6 @@ function wireEditForm(post)
       `cancelEdit-${post._id}`
     );
 
-  const locationBtn =
-    document.getElementById(
-      `editLocation-${post._id}`
-    );
-
-  const locationStatus =
-    document.getElementById(
-      `editLocationStatus-${post._id}`
-    );
-
-  locationBtn.addEventListener(
-    'click',
-    async () =>
-    {
-      locationStatus.textContent =
-        'Getting location...';
-
-      try
-      {
-        editPostCoords =
-          await getCurrentCoords();
-
-        locationStatus.textContent =
-          'Location updated ✓';
-      }
-      catch (err)
-      {
-        editPostCoords = null;
-
-        locationStatus.textContent =
-          'Could not get location';
-      }
-    }
-  );
-
   editForm.addEventListener(
     'submit',
     event =>
@@ -1421,7 +1388,6 @@ function wireEditForm(post)
     () =>
     {
       editingPostId = null;
-      editPostCoords = null;
 
       renderPostsList();
     }
@@ -1656,6 +1622,14 @@ async function handleEditSubmit(
       `editIsLive-${postId}`
     ).checked;
 
+  const city =
+    document
+      .getElementById(
+        `editCity-${postId}`
+      )
+      .value
+      .trim();
+
   try
   {
     await apiRequest(
@@ -1673,22 +1647,12 @@ async function handleEditSubmit(
           mediaUrl,
           genre,
           isLive,
-
-          lat:
-            editPostCoords
-              ? editPostCoords.lat
-              : undefined,
-
-          lng:
-            editPostCoords
-              ? editPostCoords.lng
-              : undefined
+          city
         })
       }
     );
 
     editingPostId = null;
-    editPostCoords = null;
 
     showToast(
       'Post updated',
@@ -1719,41 +1683,6 @@ function setupCreateForm()
     document.getElementById(
       'createError'
     );
-
-  const locationBtn =
-    document.getElementById(
-      'usePostLocation'
-    );
-
-  const locationStatus =
-    document.getElementById(
-      'postLocationStatus'
-    );
-
-  locationBtn.addEventListener(
-    'click',
-    async () =>
-    {
-      locationStatus.textContent =
-        'Getting location...';
-
-      try
-      {
-        postCoords =
-          await getCurrentCoords();
-
-        locationStatus.textContent =
-          'Location added ✓';
-      }
-      catch (err)
-      {
-        postCoords = null;
-
-        locationStatus.textContent =
-          'Could not get location';
-      }
-    }
-  );
 
   form.addEventListener(
     'submit',
@@ -1807,6 +1736,14 @@ function setupCreateForm()
           'postIsLive'
         ).checked;
 
+      const city =
+        document
+          .getElementById(
+            'postCity'
+          )
+          .value
+          .trim();
+
       try
       {
         await apiRequest(
@@ -1829,27 +1766,12 @@ function setupCreateForm()
                 undefined,
 
               isLive,
-
-              lat:
-                postCoords
-                  ? postCoords.lat
-                  : undefined,
-
-              lng:
-                postCoords
-                  ? postCoords.lng
-                  : undefined
+              city
             })
           }
         );
 
         form.reset();
-
-        postCoords = null;
-
-        document.getElementById(
-          'postLocationStatus'
-        ).textContent = '';
 
         showToast(
           'Post created!',

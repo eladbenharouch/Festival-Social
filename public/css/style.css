@@ -537,6 +537,11 @@ button.btn-danger:hover {
   font-size: 0.85rem;
 }
 
+.post-location {
+  color: var(--accent-orange);
+  font-weight: 600;
+}
+
 .follow-toggle-btn .label-hover {
   display: none;
 }
