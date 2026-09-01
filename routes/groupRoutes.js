@@ -11,5 +11,6 @@ router.put('/:id', requireAuth, groupController.updateGroup);
 router.delete('/:id', requireAuth, groupController.deleteGroup);
 router.post('/:id/join', requireAuth, groupController.joinGroup);
 router.post('/:id/leave', requireAuth, groupController.leaveGroup);
+router.delete('/:id/members/:userId', requireAuth, groupController.removeMember);
 
 module.exports = router;
