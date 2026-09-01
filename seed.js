@@ -284,7 +284,7 @@ async function createGroups(users)
   const groupsData =
   [
     {
-      name: 'Tel Aviv House Lovers',
+      name: 'TLV House Lovers',
       description:
         'For house music lovers, parties and festival recommendations.',
       category: 'House'
@@ -579,6 +579,9 @@ async function createPosts(
           coordinates:
             getLocation(i)
         },
+
+        locationName:
+          'Tel Aviv, Israel',
 
         isLive:
           i % 7 === 0

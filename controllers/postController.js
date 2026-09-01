@@ -22,45 +22,43 @@ function populatePost(query)
     );
 }
 
-function parseLocation(body)
+async function geocodeCity(cityName)
 {
-  if (
-    body.lat === undefined &&
-    body.lng === undefined
-  )
+  const geocodingUrl =
+    `https://geocoding-api.open-meteo.com/v1/search` +
+    `?name=${encodeURIComponent(cityName)}` +
+    `&count=1` +
+    `&language=en` +
+    `&format=json`;
+
+  const response = await fetch(geocodingUrl);
+
+  if (!response.ok)
   {
-    return {
-      location: undefined,
-      error: null
-    };
+    return { error: 'Location service returned an error' };
   }
 
-  const lat = Number(body.lat);
-  const lng = Number(body.lng);
+  const data = await response.json();
 
-  if (
-    Number.isNaN(lat) ||
-    Number.isNaN(lng) ||
-    lat < -90 ||
-    lat > 90 ||
-    lng < -180 ||
-    lng > 180
-  )
+  if (!data.results || data.results.length === 0)
   {
-    return {
-      location: undefined,
-      error: 'Invalid location coordinates'
-    };
+    return { error: 'City not found. Try a different spelling.' };
   }
+
+  const result = data.results[0];
+
+  const locationName = result.country
+    ? `${result.name}, ${result.country}`
+    : result.name;
 
   return {
     location:
     {
       type: 'Point',
-      coordinates: [lng, lat]
+      coordinates: [result.longitude, result.latitude]
     },
 
-    error: null
+    locationName
   };
 }
 
@@ -74,7 +72,8 @@ async function createPost(req, res)
       mediaUrl,
       genre,
       group,
-      isLive
+      isLive,
+      city
     } = req.body;
 
     if (!title || !content)
@@ -128,17 +127,23 @@ async function createPost(req, res)
       }
     }
 
-    const {
-      location,
-      error: locationError
-    } = parseLocation(req.body);
+    let location;
+    let locationName = '';
 
-    if (locationError)
+    if (city && city.trim())
     {
-      return res.status(400).json(
+      const geo = await geocodeCity(city.trim());
+
+      if (geo.error)
       {
-        error: locationError
-      });
+        return res.status(400).json(
+        {
+          error: geo.error
+        });
+      }
+
+      location = geo.location;
+      locationName = geo.locationName;
     }
 
     const post =
@@ -161,6 +166,8 @@ async function createPost(req, res)
 
         isLive:
           Boolean(isLive),
+
+        locationName,
 
         ...(location
           ? { location }
@@ -584,7 +591,8 @@ async function updatePost(req, res)
       content,
       mediaUrl,
       genre,
-      isLive
+      isLive,
+      city
     } = req.body;
 
     if (title)
@@ -623,24 +631,35 @@ async function updatePost(req, res)
         Boolean(isLive);
     }
 
-    const {
-      location,
-      error: locationError
-    } = parseLocation(req.body);
-
-    if (locationError)
+    if (city !== undefined)
     {
-      return res.status(400).json(
+      const trimmedCity = city.trim();
+
+      if (trimmedCity)
       {
-        error:
-          locationError
-      });
-    }
+        const geo = await geocodeCity(trimmedCity);
 
-    if (location)
-    {
-      post.location =
-        location;
+        if (geo.error)
+        {
+          return res.status(400).json(
+          {
+            error: geo.error
+          });
+        }
+
+        post.location = geo.location;
+        post.locationName = geo.locationName;
+      }
+      else
+      {
+        post.location =
+        {
+          type: 'Point',
+          coordinates: [0, 0]
+        };
+
+        post.locationName = '';
+      }
     }
 
     await post.save();
