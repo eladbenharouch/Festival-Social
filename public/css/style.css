@@ -703,6 +703,23 @@ footer.site-footer {
   flex-shrink: 0;
 }
 
+.remove-member-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  flex-shrink: 0;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.remove-member-btn:hover {
+  color: #ff9fae;
+  background: rgba(255, 63, 94, 0.15);
+}
+
 .user-profile-link {
   color: var(--text-light);
   text-decoration: none;
