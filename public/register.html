@@ -2,53 +2,199 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <title>Sign Up - Festival Social</title>
-  <link rel="stylesheet" href="/css/style.css">
+
+  <link
+    rel="stylesheet"
+    href="/css/style.css"
+  >
 </head>
+
 <body>
 
   <header class="site-header">
-    <div class="logo">Festival Social</div>
+    <div class="logo">
+      Festival Social
+    </div>
+
     <nav class="site-nav">
       <ul>
-        <li><a href="/login.html">Login</a></li>
+        <li>
+          <a href="/login.html">
+            Login
+          </a>
+        </li>
       </ul>
     </nav>
   </header>
 
   <main>
-    <section class="card">
-      <h1>Create your account</h1>
-      <p class="subtitle">Join the crowd. Find your next festival.</p>
+    <section class="card register-card">
 
-      <p class="error-message" id="errorMessage"></p>
+      <h1>Create your account</h1>
+
+      <p class="subtitle">
+        Join the crowd. Find your next festival.
+      </p>
+
+      <p
+        class="error-message"
+        id="errorMessage"
+      ></p>
 
       <form id="registerForm">
+
         <div class="field">
-          <label for="username">Username</label>
-          <input type="text" id="username" name="username" required minlength="3" maxlength="30" autocomplete="username">
+          <label for="username">
+            Username
+          </label>
+
+          <input
+            type="text"
+            id="username"
+            name="username"
+            required
+            minlength="3"
+            maxlength="30"
+            autocomplete="username"
+          >
         </div>
+
         <div class="field">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" required autocomplete="email">
+          <label for="email">
+            Email
+          </label>
+
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            autocomplete="email"
+          >
         </div>
+
         <div class="field">
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" required minlength="6" autocomplete="new-password">
+          <label for="password">
+            Password
+          </label>
+
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            minlength="6"
+            autocomplete="new-password"
+          >
         </div>
-        <button type="submit" class="primary-btn" id="submitBtn">Sign Up</button>
+
+        <div class="field genre-selection-field">
+
+          <label>
+            What music are you into?
+          </label>
+
+          <p class="genre-selection-help">
+            Choose at least one genre.
+            We'll use this to personalize your feed.
+          </p>
+
+          <div
+            class="genre-options"
+            id="genreOptions"
+          >
+
+            <label class="genre-option">
+              <input
+                type="checkbox"
+                name="favoriteGenres"
+                value="House"
+              >
+              <span>House</span>
+            </label>
+
+            <label class="genre-option">
+              <input
+                type="checkbox"
+                name="favoriteGenres"
+                value="Techno"
+              >
+              <span>Techno</span>
+            </label>
+
+            <label class="genre-option">
+              <input
+                type="checkbox"
+                name="favoriteGenres"
+                value="Trance"
+              >
+              <span>Trance</span>
+            </label>
+
+            <label class="genre-option">
+              <input
+                type="checkbox"
+                name="favoriteGenres"
+                value="EDM"
+              >
+              <span>EDM</span>
+            </label>
+
+            <label class="genre-option">
+              <input
+                type="checkbox"
+                name="favoriteGenres"
+                value="Pop"
+              >
+              <span>Pop</span>
+            </label>
+
+            <label class="genre-option">
+              <input
+                type="checkbox"
+                name="favoriteGenres"
+                value="Chill"
+              >
+              <span>Chill</span>
+            </label>
+
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="primary-btn"
+          id="submitBtn"
+        >
+          Sign Up
+        </button>
+
       </form>
 
-      <p class="form-footer">Already have an account? <a href="/login.html">Log in</a></p>
+      <p class="form-footer">
+        Already have an account?
+        <a href="/login.html">
+          Log in
+        </a>
+      </p>
+
     </section>
   </main>
 
   <footer class="site-footer">
-    Festival Social &mdash; Internet Application Development course project
+    Festival Social
+    &mdash;
+    Internet Application Development course project
   </footer>
 
   <script src="/js/api.js"></script>
   <script src="/js/register.js"></script>
+
 </body>
 </html>
