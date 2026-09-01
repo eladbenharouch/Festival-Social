@@ -19,9 +19,9 @@ function validateGroupFields(name, description, category)
     return 'Group name cannot be empty';
   }
 
-  if (name !== undefined && name.trim().length > 60)
+  if (name !== undefined && name.trim().length > 20)
   {
-    return 'Group name must be 60 characters or fewer';
+    return 'Group name must be 20 characters or fewer';
   }
 
   if (category !== undefined && category.trim().length === 0)
@@ -29,9 +29,9 @@ function validateGroupFields(name, description, category)
     return 'Category cannot be empty';
   }
 
-  if (category !== undefined && category.trim().length > 40)
+  if (category !== undefined && category.trim().length > 30)
   {
-    return 'Category must be 40 characters or fewer';
+    return 'Category must be 30 characters or fewer';
   }
 
   if (description !== undefined && description.length > 300)

@@ -156,13 +156,25 @@ async function handleEdit(group) {
     return;
   }
 
-  if (!category) 
+  if (!category)
     {
     showToast('Category is required', 'error');
     return;
   }
 
-  try 
+  if (name.length > 20)
+  {
+    showToast('Group name must be 20 characters or fewer', 'error');
+    return;
+  }
+
+  if (category.length > 30)
+  {
+    showToast('Category must be 30 characters or fewer', 'error');
+    return;
+  }
+
+  try
   {
     await apiRequest(`/api/groups/${group._id}`,
       {

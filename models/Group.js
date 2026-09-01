@@ -8,7 +8,7 @@ const groupSchema = new mongoose.Schema(
     required: true,
     trim: true,
     minlength: 3,
-    maxlength: 60
+    maxlength: 20
   },
   description:
   {
@@ -21,7 +21,8 @@ const groupSchema = new mongoose.Schema(
   {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    maxlength: 30
   },
   creator:
   {
