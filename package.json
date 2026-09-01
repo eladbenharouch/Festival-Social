@@ -1,17 +1,24 @@
 {
   "name": "festival-social",
   "version": "1.0.0",
-  "description": "Festival-Social finale project dor collage",
-  "main": "index.js",
+  "description": "Festival Social - final web application development project",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "start": "node app.js",
+    "seed": "node seed.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eladbenharouch/Festival-Social.git"
   },
-  "keywords": [],
+  "keywords": [
+    "festival",
+    "social-network",
+    "express",
+    "mongodb",
+    "mongoose"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
