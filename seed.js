@@ -580,6 +580,9 @@ async function createPosts(
             getLocation(i)
         },
 
+        locationName:
+          'Tel Aviv, Israel',
+
         isLive:
           i % 7 === 0
       });

@@ -65,6 +65,13 @@ const postSchema = new mongoose.Schema(
       default: [0, 0]
     }
   },
+  locationName:
+  {
+    type: String,
+    default: '',
+    trim: true,
+    maxlength: 200
+  },
   genre:
   {
     type: String,
