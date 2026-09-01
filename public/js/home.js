@@ -12,657 +12,1617 @@ let postCoords = null;
 let feedMode = 'feed';
 let editPostCoords = null;
 
-async function init() {
+let videoObserver = null;
+
+async function init()
+{
   const result = await getCurrentUser();
   const user = result && result.user ? result.user : null;
 
   renderNav(navLinks, user, 'home');
 
-  if (user) {
+  if (user)
+  {
     currentUser = user;
     await renderLoggedIn();
   }
-  else {
+  else
+  {
     renderLoggedOut();
   }
 }
 
-function renderLoggedOut() {
+function renderLoggedOut()
+{
   content.innerHTML = `
     <h1>Find your next festival</h1>
-    <p class="subtitle">Share experiences, join groups, get live updates from the crowd.</p>
-    <a href="/register.html" class="primary-btn" style="display:block; text-align:center; text-decoration:none; margin-top:1.5rem;">Get Started</a>
+    <p class="subtitle">
+      Share experiences, join groups, get live updates from the crowd.
+    </p>
+    <a
+      href="/register.html"
+      class="primary-btn"
+      style="display:block; text-align:center; text-decoration:none; margin-top:1.5rem;"
+    >
+      Get Started
+    </a>
   `;
 }
 
-async function renderLoggedIn() {
+async function renderLoggedIn()
+{
   document.querySelector('main').classList.add('top-align');
+
   content.classList.remove('card');
   content.classList.add('page-container');
 
   content.innerHTML = `
     <section class="card-flat">
       <h2>Share something</h2>
+
       <p class="error-message" id="createError"></p>
+
       <form id="createPostForm" class="inline-form">
+
         <div class="field">
           <label for="postTitle">Title</label>
-          <input type="text" id="postTitle" required maxlength="120" placeholder="What's going on?">
+          <input
+            type="text"
+            id="postTitle"
+            required
+            maxlength="120"
+            placeholder="What's going on?"
+          >
         </div>
+
         <div class="field">
           <label for="postGenre">Genre</label>
-          <input type="text" id="postGenre" maxlength="40" placeholder="Optional">
+          <input
+            type="text"
+            id="postGenre"
+            maxlength="40"
+            placeholder="Optional"
+          >
         </div>
+
         <div class="field">
           <label for="postGroup">Group</label>
-          <select id="postGroup"><option value="">No group</option></select>
+          <select id="postGroup">
+            <option value="">No group</option>
+          </select>
         </div>
+
         <div class="field">
           <label for="postMediaUrl">Media URL</label>
-          <input type="text" id="postMediaUrl" maxlength="500" placeholder="Optional link">
+          <input
+            type="text"
+            id="postMediaUrl"
+            maxlength="500"
+            placeholder="Optional link"
+          >
         </div>
+
         <div class="field" style="flex-basis:100%;">
-                <div class="field" style="flex-basis:100%;">
           <label>Location</label>
-          <button type="button" id="usePostLocation" class="btn-small btn-outline">Use my location</button>
+
+          <button
+            type="button"
+            id="usePostLocation"
+            class="btn-small btn-outline"
+          >
+            Use my location
+          </button>
+
           <span id="postLocationStatus"></span>
         </div>
+
+        <div class="field" style="flex-basis:100%;">
           <label for="postContent">Content</label>
-          <textarea id="postContent" required maxlength="3000" rows="3"></textarea>
+
+          <textarea
+            id="postContent"
+            required
+            maxlength="3000"
+            rows="3"
+          ></textarea>
         </div>
-        <label class="checkbox-field"><input type="checkbox" id="postIsLive"> This is a live crowd update</label>
-        <button type="submit" class="primary-btn btn-small">Post</button>
+
+        <label class="checkbox-field">
+          <input type="checkbox" id="postIsLive">
+          This is a live crowd update
+        </label>
+
+        <button type="submit" class="primary-btn btn-small">
+          Post
+        </button>
       </form>
     </section>
-      <section>
-  <div class="feed-header">
-    <h2 id="feedTitle">Your Feed</h2>
 
-    <div class="actions">
-      <button type="button" class="btn-small primary-btn" id="showFeedBtn">
-        Feed
-      </button>
+    <section>
+      <div class="feed-header">
+        <h2 id="feedTitle">Your Feed</h2>
 
-      <button type="button" class="btn-small btn-outline" id="showMyPostsBtn">
-        My Posts
-      </button>
-    </div>
-  </div>
+        <div class="actions">
+          <button
+            type="button"
+            class="btn-small primary-btn"
+            id="showFeedBtn"
+          >
+            Feed
+          </button>
 
-  <div class="posts-list" id="feedList"></div>
-</section>
+          <button
+            type="button"
+            class="btn-small btn-outline"
+            id="showMyPostsBtn"
+          >
+            My Posts
+          </button>
+        </div>
+      </div>
+
+      <div class="posts-list" id="feedList"></div>
+    </section>
+
     <section class="card-flat">
       <h2>Search Posts</h2>
+
       <form id="postSearchForm" class="inline-form">
+
         <div class="field">
           <label for="searchGenre">Genre</label>
-          <input type="text" id="searchGenre" maxlength="40" placeholder="Any genre">
+          <input
+            type="text"
+            id="searchGenre"
+            maxlength="40"
+            placeholder="Any genre"
+          >
         </div>
+
         <div class="field">
           <label for="searchIsLive">Live status</label>
+
           <select id="searchIsLive">
             <option value="">All posts</option>
             <option value="true">Live only</option>
             <option value="false">Non-live only</option>
           </select>
         </div>
-        <label class="checkbox-field"><input type="checkbox" id="searchNearMe"> Near my location</label>
-        <button type="submit" class="primary-btn btn-small">Search</button>
+
+        <label class="checkbox-field">
+          <input type="checkbox" id="searchNearMe">
+          Near my location
+        </label>
+
+        <button type="submit" class="primary-btn btn-small">
+          Search
+        </button>
       </form>
+
       <p class="error-message" id="searchError"></p>
-      <div class="posts-list" id="searchResultsList"></div>
+
+      <div
+        class="posts-list"
+        id="searchResultsList"
+      ></div>
     </section>
   `;
 
   setupCreateForm();
   setupPostSearch();
-  document.getElementById('showFeedBtn').addEventListener('click', () => {
-    feedMode = 'feed';
-    renderPostsList();
-  });
 
-  document.getElementById('showMyPostsBtn').addEventListener('click', () => {
-    feedMode = 'mine';
-    renderPostsList();
-  });
-  await Promise.all([loadMyGroupsForSelect(), loadFollowing()]);
+  document
+    .getElementById('showFeedBtn')
+    .addEventListener('click', () =>
+    {
+      feedMode = 'feed';
+      renderPostsList();
+    });
+
+  document
+    .getElementById('showMyPostsBtn')
+    .addEventListener('click', () =>
+    {
+      feedMode = 'mine';
+      renderPostsList();
+    });
+
+  await Promise.all(
+  [
+    loadMyGroupsForSelect(),
+    loadFollowing()
+  ]);
+
   await loadFeed();
 }
 
-async function loadMyGroupsForSelect() {
-  try {
-    const { groups } = await apiRequest('/api/groups/mine');
-    const select = document.getElementById('postGroup');
+async function loadMyGroupsForSelect()
+{
+  try
+  {
+    const { groups } =
+      await apiRequest('/api/groups/mine');
 
-    groups.forEach((group) => {
-      const option = document.createElement('option');
+    const select =
+      document.getElementById('postGroup');
+
+    groups.forEach((group) =>
+    {
+      const option =
+        document.createElement('option');
+
       option.value = group._id;
       option.textContent = group.name;
+
       select.appendChild(option);
     });
   }
-  catch (err) {
+  catch (err)
+  {
     showToast(err.message, 'error');
   }
 }
 
-async function loadFollowing() {
-  try {
-    const { following } = await apiRequest('/api/users/following');
-    followingIds = new Set(following.map((id) => id.toString()));
+async function loadFollowing()
+{
+  try
+  {
+    const { following } =
+      await apiRequest('/api/users/following');
+
+    followingIds =
+      new Set(
+        following.map(
+          id => id.toString()
+        )
+      );
   }
-  catch (err) {
+  catch (err)
+  {
     showToast(err.message, 'error');
   }
 }
 
-async function loadFeed() {
-  try {
-    const { posts } = await apiRequest('/api/posts/feed');
+async function loadFeed()
+{
+  try
+  {
+    const { posts } =
+      await apiRequest('/api/posts/feed');
+
     lastPosts = posts;
+
     renderPostsList();
   }
-  catch (err) {
+  catch (err)
+  {
     showToast(err.message, 'error');
   }
 }
 
-function renderPostsList() {
-  const container = document.getElementById('feedList');
-  const feedTitle = document.getElementById('feedTitle');
-  const showFeedBtn = document.getElementById('showFeedBtn');
-  const showMyPostsBtn = document.getElementById('showMyPostsBtn');
+function renderPostsList()
+{
+  const container =
+    document.getElementById('feedList');
 
-  const postsToShow = feedMode === 'mine'
-    ? lastPosts.filter((post) => post.author._id === currentUser.id)
-    : lastPosts;
+  const feedTitle =
+    document.getElementById('feedTitle');
 
-  if (feedMode === 'mine') {
+  const showFeedBtn =
+    document.getElementById('showFeedBtn');
+
+  const showMyPostsBtn =
+    document.getElementById('showMyPostsBtn');
+
+  const postsToShow =
+    feedMode === 'mine'
+      ? lastPosts.filter(
+          post =>
+            post.author._id ===
+            currentUser.id
+        )
+      : lastPosts;
+
+  if (feedMode === 'mine')
+  {
     feedTitle.textContent = 'My Posts';
-    showFeedBtn.className = 'btn-small btn-outline';
-    showMyPostsBtn.className = 'btn-small primary-btn';
+
+    showFeedBtn.className =
+      'btn-small btn-outline';
+
+    showMyPostsBtn.className =
+      'btn-small primary-btn';
   }
-  else {
+  else
+  {
     feedTitle.textContent = 'Your Feed';
-    showFeedBtn.className = 'btn-small primary-btn';
-    showMyPostsBtn.className = 'btn-small btn-outline';
+
+    showFeedBtn.className =
+      'btn-small primary-btn';
+
+    showMyPostsBtn.className =
+      'btn-small btn-outline';
   }
 
-  if (!postsToShow.length) {
-    container.innerHTML = feedMode === 'mine'
-      ? '<p class="empty-message">You have not published any posts yet.</p>'
-      : '<p class="empty-message">Your feed is empty. Join a group, follow someone, or share your first post.</p>';
+  if (!postsToShow.length)
+  {
+    container.innerHTML =
+      feedMode === 'mine'
+        ? '<p class="empty-message">You have not published any posts yet.</p>'
+        : '<p class="empty-message">Your feed is empty. Join a group, follow someone, or share your first post.</p>';
 
     return;
   }
 
-  container.innerHTML = postsToShow.map((post) => postCardHtml(post)).join('');
+  container.innerHTML =
+    postsToShow
+      .map(
+        post => postCardHtml(post)
+      )
+      .join('');
 
-  postsToShow.forEach((post) => {
-    if (post._id === editingPostId) {
+  postsToShow.forEach((post) =>
+  {
+    if (post._id === editingPostId)
+    {
       wireEditForm(post);
       return;
     }
 
     wireDisplayCard(post);
   });
+
+  setupVideoAutoplay(container);
 }
 
-function postCardHtml(post) {
-  if (post._id === editingPostId) {
+function getMediaHtml(post)
+{
+  if (!post.mediaUrl)
+  {
+    return '';
+  }
+
+  const mediaUrl =
+    escapeHtml(post.mediaUrl);
+
+  const cleanUrl =
+    post.mediaUrl
+      .split('?')[0]
+      .toLowerCase();
+
+  const isVideo =
+    cleanUrl.endsWith('.mp4') ||
+    cleanUrl.endsWith('.mov') ||
+    cleanUrl.endsWith('.webm') ||
+    cleanUrl.endsWith('.ogg');
+
+  if (isVideo)
+  {
+    return `
+      <div class="post-media-wrapper">
+        <video
+          class="post-media post-media-video"
+          src="${mediaUrl}"
+          controls
+          muted
+          playsinline
+          preload="metadata"
+          loop
+        >
+          Your browser does not support video.
+        </video>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="post-media-wrapper">
+      <img
+        class="post-media"
+        src="${mediaUrl}"
+        alt="Post media"
+        loading="lazy"
+      >
+    </div>
+  `;
+}
+
+function postCardHtml(post)
+{
+  if (post._id === editingPostId)
+  {
     return editCardHtml(post);
   }
 
-  const isOwnPost = post.author._id === currentUser.id;
-  const isFollowingAuthor = followingIds.has(post.author._id);
-  const isLiked = post.likedBy.some((userId) => userId === currentUser.id);
+  const isOwnPost =
+    post.author._id === currentUser.id;
 
-  const groupBadge = post.group ? `<span class="category-badge">${escapeHtml(post.group.name)}</span>` : '';
-  const liveBadge = post.isLive ? '<span class="live-badge">LIVE</span>' : '';
-  const mediaLink = post.mediaUrl ? `<a class="media-link" href="${escapeHtml(post.mediaUrl)}" target="_blank" rel="noopener">View media</a>` : '';
+  const isFollowingAuthor =
+    followingIds.has(post.author._id);
+
+  const isLiked =
+    post.likedBy.some(
+      userId => userId === currentUser.id
+    );
+
+  const groupBadge =
+    post.group
+      ? `<span class="category-badge">${escapeHtml(post.group.name)}</span>`
+      : '';
+
+  const liveBadge =
+    post.isLive
+      ? '<span class="live-badge">LIVE</span>'
+      : '';
+
+  const mediaHtml =
+    getMediaHtml(post);
 
   let followBtn = '';
 
-  if (!isOwnPost) {
-    followBtn = isFollowingAuthor
-      ? `<button class="btn-small btn-outline" id="unfollow-${post._id}">Following</button>`
-      : `<button class="btn-small primary-btn" id="follow-${post._id}">Follow</button>`;
+  if (!isOwnPost)
+  {
+    followBtn =
+      isFollowingAuthor
+        ? `
+          <button
+            class="btn-small btn-outline"
+            id="unfollow-${post._id}"
+          >
+            Following
+          </button>
+        `
+        : `
+          <button
+            class="btn-small primary-btn"
+            id="follow-${post._id}"
+          >
+            Follow
+          </button>
+        `;
   }
 
   let ownerActions = '';
 
-  if (isOwnPost) {
+  if (isOwnPost)
+  {
     ownerActions = `
-      <button class="btn-small btn-outline" id="edit-${post._id}">Edit</button>
-      <button class="btn-small btn-danger" id="delete-${post._id}">Delete</button>
+      <button
+        class="btn-small btn-outline"
+        id="edit-${post._id}"
+      >
+        Edit
+      </button>
+
+      <button
+        class="btn-small btn-danger"
+        id="delete-${post._id}"
+      >
+        Delete
+      </button>
     `;
   }
 
-  const commentsHtml = post.comments.map((comment) => {
-    const canDelete = comment.author._id === currentUser.id || isOwnPost;
-    const deleteBtn = canDelete
-      ? `<button id="delcomment-${post._id}-${comment._id}" title="Delete comment">&times;</button>`
-      : '';
+  const commentsHtml =
+    post.comments
+      .map((comment) =>
+      {
+        const canDelete =
+          comment.author._id === currentUser.id ||
+          isOwnPost;
 
-    return `
-      <li class="comment-item">
-        <span class="comment-author">${escapeHtml(comment.author.username)}:</span>
-        ${escapeHtml(comment.text)}
-        ${deleteBtn}
-      </li>
-    `;
-  }).join('');
+        const deleteBtn =
+          canDelete
+            ? `
+              <button
+                id="delcomment-${post._id}-${comment._id}"
+                title="Delete comment"
+              >
+                &times;
+              </button>
+            `
+            : '';
+
+        return `
+          <li class="comment-item">
+            <span class="comment-author">
+              ${escapeHtml(comment.author.username)}:
+            </span>
+
+            ${escapeHtml(comment.text)}
+
+            ${deleteBtn}
+          </li>
+        `;
+      })
+      .join('');
 
   return `
-    <article class="card-flat post-card ${post.isLive ? 'live' : ''}">
+    <article
+      class="card-flat post-card ${post.isLive ? 'live' : ''}"
+    >
       <div class="post-header">
         ${liveBadge}
         ${groupBadge}
       </div>
-      <h3>${escapeHtml(post.title)}</h3>
-      <p class="meta">By ${escapeHtml(post.author.username)} &middot; ${new Date(post.createdAt).toLocaleString()}</p>
-      <p>${escapeHtml(post.content)}</p>
-      ${mediaLink}
+
+      <h3>
+        ${escapeHtml(post.title)}
+      </h3>
+
+      <p class="meta">
+        By ${escapeHtml(post.author.username)}
+        &middot;
+        ${new Date(post.createdAt).toLocaleString()}
+      </p>
+
+      <p>
+        ${escapeHtml(post.content)}
+      </p>
+
+      ${mediaHtml}
+
       <div class="post-actions">
-        <button class="btn-small ${isLiked ? 'primary-btn' : 'btn-outline'}" id="like-${post._id}">
-          ${isLiked ? 'Liked' : 'Like'} (${post.likedBy.length})
+
+        <button
+          class="btn-small ${isLiked ? 'primary-btn' : 'btn-outline'}"
+          id="like-${post._id}"
+        >
+          ${isLiked ? 'Liked' : 'Like'}
+          (${post.likedBy.length})
         </button>
+
         ${followBtn}
+
         ${ownerActions}
       </div>
-      <ul class="comment-list">${commentsHtml}</ul>
-      <form class="inline-form" id="commentForm-${post._id}">
-        <div class="field" style="flex:1;">
-          <input type="text" id="commentInput-${post._id}" maxlength="500" placeholder="Add a comment...">
+
+      <ul class="comment-list">
+        ${commentsHtml}
+      </ul>
+
+      <form
+        class="inline-form"
+        id="commentForm-${post._id}"
+      >
+        <div
+          class="field"
+          style="flex:1;"
+        >
+          <input
+            type="text"
+            id="commentInput-${post._id}"
+            maxlength="500"
+            placeholder="Add a comment..."
+          >
         </div>
-        <button type="submit" class="btn-small primary-btn">Comment</button>
+
+        <button
+          type="submit"
+          class="btn-small primary-btn"
+        >
+          Comment
+        </button>
       </form>
     </article>
   `;
 }
 
-function editCardHtml(post) {
+function editCardHtml(post)
+{
   return `
     <article class="card-flat post-card">
+
       <h2>Edit Post</h2>
-      <p class="error-message" id="editError-${post._id}"></p>
-      <form class="inline-form" id="editForm-${post._id}">
+
+      <p
+        class="error-message"
+        id="editError-${post._id}"
+      ></p>
+
+      <form
+        class="inline-form"
+        id="editForm-${post._id}"
+      >
+
         <div class="field">
-          <label for="editTitle-${post._id}">Title</label>
-          <input type="text" id="editTitle-${post._id}" required maxlength="120" value="${escapeHtml(post.title)}">
+          <label for="editTitle-${post._id}">
+            Title
+          </label>
+
+          <input
+            type="text"
+            id="editTitle-${post._id}"
+            required
+            maxlength="120"
+            value="${escapeHtml(post.title)}"
+          >
         </div>
+
         <div class="field">
-          <label for="editGenre-${post._id}">Genre</label>
-          <input type="text" id="editGenre-${post._id}" maxlength="40" value="${escapeHtml(post.genre || '')}">
+          <label for="editGenre-${post._id}">
+            Genre
+          </label>
+
+          <input
+            type="text"
+            id="editGenre-${post._id}"
+            maxlength="40"
+            value="${escapeHtml(post.genre || '')}"
+          >
         </div>
+
         <div class="field">
-          <label for="editMediaUrl-${post._id}">Media URL</label>
-          <input type="text" id="editMediaUrl-${post._id}" maxlength="500" value="${escapeHtml(post.mediaUrl || '')}">
+          <label for="editMediaUrl-${post._id}">
+            Media URL
+          </label>
+
+          <input
+            type="text"
+            id="editMediaUrl-${post._id}"
+            maxlength="500"
+            value="${escapeHtml(post.mediaUrl || '')}"
+          >
         </div>
-        <div class="field" style="flex-basis:100%;">
-  <label>Location</label>
-  <button type="button" class="btn-small btn-outline" id="editLocation-${post._id}">
-    Use my location
-  </button>
-  <span id="editLocationStatus-${post._id}"></span>
-</div>
-        <div class="field" style="flex-basis:100%;">
-          <label for="editContent-${post._id}">Content</label>
-          <textarea id="editContent-${post._id}" required maxlength="3000" rows="3">${escapeHtml(post.content)}</textarea>
+
+        <div
+          class="field"
+          style="flex-basis:100%;"
+        >
+          <label>Location</label>
+
+          <button
+            type="button"
+            class="btn-small btn-outline"
+            id="editLocation-${post._id}"
+          >
+            Use my location
+          </button>
+
+          <span
+            id="editLocationStatus-${post._id}"
+          ></span>
         </div>
-        <label class="checkbox-field"><input type="checkbox" id="editIsLive-${post._id}" ${post.isLive ? 'checked' : ''}> This is a live crowd update</label>
-        <button type="submit" class="btn-small primary-btn">Save</button>
-        <button type="button" class="btn-small btn-outline" id="cancelEdit-${post._id}">Cancel</button>
+
+        <div
+          class="field"
+          style="flex-basis:100%;"
+        >
+          <label for="editContent-${post._id}">
+            Content
+          </label>
+
+          <textarea
+            id="editContent-${post._id}"
+            required
+            maxlength="3000"
+            rows="3"
+          >${escapeHtml(post.content)}</textarea>
+        </div>
+
+        <label class="checkbox-field">
+          <input
+            type="checkbox"
+            id="editIsLive-${post._id}"
+            ${post.isLive ? 'checked' : ''}
+          >
+
+          This is a live crowd update
+        </label>
+
+        <button
+          type="submit"
+          class="btn-small primary-btn"
+        >
+          Save
+        </button>
+
+        <button
+          type="button"
+          class="btn-small btn-outline"
+          id="cancelEdit-${post._id}"
+        >
+          Cancel
+        </button>
+
       </form>
     </article>
   `;
 }
 
-function wireDisplayCard(post) {
-  const likeBtn = document.getElementById(`like-${post._id}`);
-  const followBtn = document.getElementById(`follow-${post._id}`);
-  const unfollowBtn = document.getElementById(`unfollow-${post._id}`);
-  const editBtn = document.getElementById(`edit-${post._id}`);
-  const deleteBtn = document.getElementById(`delete-${post._id}`);
-  const commentForm = document.getElementById(`commentForm-${post._id}`);
-
-  if (likeBtn) {
-    likeBtn.addEventListener('click', () => handleLike(post._id));
+function setupVideoAutoplay(container = document)
+{
+  if (!('IntersectionObserver' in window))
+  {
+    return;
   }
 
-  if (followBtn) {
-    followBtn.addEventListener('click', () => handleFollow(post.author._id));
+  if (!videoObserver)
+  {
+    videoObserver =
+      new IntersectionObserver(
+        (entries) =>
+        {
+          entries.forEach((entry) =>
+          {
+            const video = entry.target;
+
+            if (
+              entry.isIntersecting &&
+              entry.intersectionRatio >= 0.6
+            )
+            {
+              document
+                .querySelectorAll('.post-media-video')
+                .forEach((otherVideo) =>
+                {
+                  if (otherVideo !== video)
+                  {
+                    otherVideo.pause();
+                  }
+                });
+
+              video.muted = true;
+
+              const playPromise =
+                video.play();
+
+              if (
+                playPromise &&
+                typeof playPromise.catch === 'function'
+              )
+              {
+                playPromise.catch(() => {});
+              }
+            }
+            else
+            {
+              video.pause();
+            }
+          });
+        },
+        {
+          threshold:
+          [
+            0,
+            0.25,
+            0.6,
+            0.8,
+            1
+          ]
+        }
+      );
   }
 
-  if (unfollowBtn) {
-    unfollowBtn.addEventListener('click', () => handleUnfollow(post.author._id));
-  }
+  container
+    .querySelectorAll('.post-media-video')
+    .forEach((video) =>
+    {
+      if (video.dataset.autoplayObserved)
+      {
+        return;
+      }
 
-  if (editBtn) {
-    editBtn.addEventListener('click', () => {
-      editingPostId = post._id;
-      renderPostsList();
+      video.dataset.autoplayObserved = 'true';
+
+      videoObserver.observe(video);
     });
+}
+
+function wireDisplayCard(post)
+{
+  const likeBtn =
+    document.getElementById(
+      `like-${post._id}`
+    );
+
+  const followBtn =
+    document.getElementById(
+      `follow-${post._id}`
+    );
+
+  const unfollowBtn =
+    document.getElementById(
+      `unfollow-${post._id}`
+    );
+
+  const editBtn =
+    document.getElementById(
+      `edit-${post._id}`
+    );
+
+  const deleteBtn =
+    document.getElementById(
+      `delete-${post._id}`
+    );
+
+  const commentForm =
+    document.getElementById(
+      `commentForm-${post._id}`
+    );
+
+  if (likeBtn)
+  {
+    likeBtn.addEventListener(
+      'click',
+      () => handleLike(post._id)
+    );
   }
 
-  if (deleteBtn) {
-    deleteBtn.addEventListener('click', () => handleDeletePost(post._id));
+  if (followBtn)
+  {
+    followBtn.addEventListener(
+      'click',
+      () => handleFollow(post.author._id)
+    );
   }
 
-  if (commentForm) {
-    commentForm.addEventListener('submit', (event) => handleAddComment(event, post._id));
+  if (unfollowBtn)
+  {
+    unfollowBtn.addEventListener(
+      'click',
+      () => handleUnfollow(post.author._id)
+    );
   }
 
-  post.comments.forEach((comment) => {
-    const delBtn = document.getElementById(`delcomment-${post._id}-${comment._id}`);
+  if (editBtn)
+  {
+    editBtn.addEventListener(
+      'click',
+      () =>
+      {
+        editingPostId = post._id;
+        renderPostsList();
+      }
+    );
+  }
 
-    if (delBtn) {
-      delBtn.addEventListener('click', () => handleDeleteComment(post._id, comment._id));
+  if (deleteBtn)
+  {
+    deleteBtn.addEventListener(
+      'click',
+      () => handleDeletePost(post._id)
+    );
+  }
+
+  if (commentForm)
+  {
+    commentForm.addEventListener(
+      'submit',
+      event =>
+        handleAddComment(
+          event,
+          post._id
+        )
+    );
+  }
+
+  post.comments.forEach((comment) =>
+  {
+    const delBtn =
+      document.getElementById(
+        `delcomment-${post._id}-${comment._id}`
+      );
+
+    if (delBtn)
+    {
+      delBtn.addEventListener(
+        'click',
+        () =>
+          handleDeleteComment(
+            post._id,
+            comment._id
+          )
+      );
     }
   });
 }
 
-function wireEditForm(post) {
-  const editForm = document.getElementById(`editForm-${post._id}`);
-  const cancelBtn = document.getElementById(`cancelEdit-${post._id}`);
-  const locationBtn = document.getElementById(`editLocation-${post._id}`);
-const locationStatus = document.getElementById(`editLocationStatus-${post._id}`);
-
-locationBtn.addEventListener('click', async () =>
+function wireEditForm(post)
 {
-  locationStatus.textContent = 'Getting location...';
+  const editForm =
+    document.getElementById(
+      `editForm-${post._id}`
+    );
 
+  const cancelBtn =
+    document.getElementById(
+      `cancelEdit-${post._id}`
+    );
+
+  const locationBtn =
+    document.getElementById(
+      `editLocation-${post._id}`
+    );
+
+  const locationStatus =
+    document.getElementById(
+      `editLocationStatus-${post._id}`
+    );
+
+  locationBtn.addEventListener(
+    'click',
+    async () =>
+    {
+      locationStatus.textContent =
+        'Getting location...';
+
+      try
+      {
+        editPostCoords =
+          await getCurrentCoords();
+
+        locationStatus.textContent =
+          'Location updated ✓';
+      }
+      catch (err)
+      {
+        editPostCoords = null;
+
+        locationStatus.textContent =
+          'Could not get location';
+      }
+    }
+  );
+
+  editForm.addEventListener(
+    'submit',
+    event =>
+      handleEditSubmit(
+        event,
+        post._id
+      )
+  );
+
+  cancelBtn.addEventListener(
+    'click',
+    () =>
+    {
+      editingPostId = null;
+      editPostCoords = null;
+
+      renderPostsList();
+    }
+  );
+}
+
+async function handleLike(postId)
+{
   try
   {
-    editPostCoords = await getCurrentCoords();
-    locationStatus.textContent = 'Location updated ✓';
+    await apiRequest(
+      `/api/posts/${postId}/like`,
+      {
+        method: 'POST'
+      }
+    );
+
+    await loadFeed();
   }
   catch (err)
   {
-    editPostCoords = null;
-    locationStatus.textContent = 'Could not get location';
-  }
-});
-
-  editForm.addEventListener('submit', (event) => handleEditSubmit(event, post._id));
-
-  cancelBtn.addEventListener('click', () => {
-    editingPostId = null;
-    renderPostsList();
-  });
-}
-
-async function handleLike(postId) {
-  try {
-    await apiRequest(`/api/posts/${postId}/like`, { method: 'POST' });
-    await loadFeed();
-  }
-  catch (err) {
     showToast(err.message, 'error');
   }
 }
 
-async function handleFollow(authorId) {
-  try {
-    await apiRequest(`/api/users/${authorId}/follow`, { method: 'POST' });
-    showToast('You are now following this user', 'success');
+async function handleFollow(authorId)
+{
+  try
+  {
+    await apiRequest(
+      `/api/users/${authorId}/follow`,
+      {
+        method: 'POST'
+      }
+    );
+
+    showToast(
+      'You are now following this user',
+      'success'
+    );
+
     await loadFollowing();
     await loadFeed();
   }
-  catch (err) {
+  catch (err)
+  {
     showToast(err.message, 'error');
   }
 }
 
-async function handleUnfollow(authorId) {
-  try {
-    await apiRequest(`/api/users/${authorId}/unfollow`, { method: 'POST' });
-    showToast('Unfollowed', 'success');
+async function handleUnfollow(authorId)
+{
+  try
+  {
+    await apiRequest(
+      `/api/users/${authorId}/unfollow`,
+      {
+        method: 'POST'
+      }
+    );
+
+    showToast(
+      'Unfollowed',
+      'success'
+    );
+
     await loadFollowing();
     await loadFeed();
   }
-  catch (err) {
+  catch (err)
+  {
     showToast(err.message, 'error');
   }
 }
 
-async function handleDeletePost(postId) {
-  try {
-    await apiRequest(`/api/posts/${postId}`, { method: 'DELETE' });
-    showToast('Post deleted', 'success');
+async function handleDeletePost(postId)
+{
+  try
+  {
+    await apiRequest(
+      `/api/posts/${postId}`,
+      {
+        method: 'DELETE'
+      }
+    );
+
+    showToast(
+      'Post deleted',
+      'success'
+    );
+
     await loadFeed();
   }
-  catch (err) {
+  catch (err)
+  {
     showToast(err.message, 'error');
   }
 }
 
-async function handleAddComment(event, postId) {
+async function handleAddComment(
+  event,
+  postId
+)
+{
   event.preventDefault();
 
-  const input = document.getElementById(`commentInput-${postId}`);
-  const text = input.value.trim();
+  const input =
+    document.getElementById(
+      `commentInput-${postId}`
+    );
 
-  if (!text) {
+  const text =
+    input.value.trim();
+
+  if (!text)
+  {
     return;
   }
 
-  try {
-    await apiRequest(`/api/posts/${postId}/comments`, { method: 'POST', body: JSON.stringify({ text }) });
+  try
+  {
+    await apiRequest(
+      `/api/posts/${postId}/comments`,
+      {
+        method: 'POST',
+        body: JSON.stringify(
+        {
+          text
+        })
+      }
+    );
+
     await loadFeed();
   }
-  catch (err) {
+  catch (err)
+  {
     showToast(err.message, 'error');
   }
 }
 
-async function handleDeleteComment(postId, commentId) {
-  try {
-    await apiRequest(`/api/posts/${postId}/comments/${commentId}`, { method: 'DELETE' });
+async function handleDeleteComment(
+  postId,
+  commentId
+)
+{
+  try
+  {
+    await apiRequest(
+      `/api/posts/${postId}/comments/${commentId}`,
+      {
+        method: 'DELETE'
+      }
+    );
+
     await loadFeed();
   }
-  catch (err) {
+  catch (err)
+  {
     showToast(err.message, 'error');
   }
 }
 
-async function handleEditSubmit(event, postId) {
+async function handleEditSubmit(
+  event,
+  postId
+)
+{
   event.preventDefault();
 
-  const errorEl = document.getElementById(`editError-${postId}`);
+  const errorEl =
+    document.getElementById(
+      `editError-${postId}`
+    );
+
   errorEl.classList.remove('visible');
 
-  const title = document.getElementById(`editTitle-${postId}`).value.trim();
-  const genre = document.getElementById(`editGenre-${postId}`).value.trim();
-  const mediaUrl = document.getElementById(`editMediaUrl-${postId}`).value.trim();
-  const content = document.getElementById(`editContent-${postId}`).value.trim();
-  const isLive = document.getElementById(`editIsLive-${postId}`).checked;
+  const title =
+    document
+      .getElementById(
+        `editTitle-${postId}`
+      )
+      .value
+      .trim();
 
-  try {
-    await apiRequest(`/api/posts/${postId}`,
+  const genre =
+    document
+      .getElementById(
+        `editGenre-${postId}`
+      )
+      .value
+      .trim();
+
+  const mediaUrl =
+    document
+      .getElementById(
+        `editMediaUrl-${postId}`
+      )
+      .value
+      .trim();
+
+  const contentValue =
+    document
+      .getElementById(
+        `editContent-${postId}`
+      )
+      .value
+      .trim();
+
+  const isLive =
+    document.getElementById(
+      `editIsLive-${postId}`
+    ).checked;
+
+  try
+  {
+    await apiRequest(
+      `/api/posts/${postId}`,
       {
         method: 'PUT',
-body: JSON.stringify(
-{
-  title,
-  content,
-  mediaUrl,
-  genre,
-  isLive,
-  lat: editPostCoords ? editPostCoords.lat : undefined,
-  lng: editPostCoords ? editPostCoords.lng : undefined
-})      });
+
+        body: JSON.stringify(
+        {
+          title,
+          content: contentValue,
+          mediaUrl,
+          genre,
+          isLive,
+
+          lat:
+            editPostCoords
+              ? editPostCoords.lat
+              : undefined,
+
+          lng:
+            editPostCoords
+              ? editPostCoords.lng
+              : undefined
+        })
+      }
+    );
 
     editingPostId = null;
     editPostCoords = null;
-    showToast('Post updated', 'success');
+
+    showToast(
+      'Post updated',
+      'success'
+    );
+
     await loadFeed();
   }
-  catch (err) {
+  catch (err)
+  {
     errorEl.textContent = err.message;
     errorEl.classList.add('visible');
   }
 }
 
-function setupCreateForm() {
-  const form = document.getElementById('createPostForm');
-  const errorEl = document.getElementById('createError');
-  const locationBtn = document.getElementById('usePostLocation');
-  const locationStatus = document.getElementById('postLocationStatus');
+function setupCreateForm()
+{
+  const form =
+    document.getElementById(
+      'createPostForm'
+    );
 
-  locationBtn.addEventListener('click', async () => {
-    locationStatus.textContent = 'Getting location...';
+  const errorEl =
+    document.getElementById(
+      'createError'
+    );
 
-    try {
-      postCoords = await getCurrentCoords();
-      locationStatus.textContent = 'Location added ✓';
+  const locationBtn =
+    document.getElementById(
+      'usePostLocation'
+    );
+
+  const locationStatus =
+    document.getElementById(
+      'postLocationStatus'
+    );
+
+  locationBtn.addEventListener(
+    'click',
+    async () =>
+    {
+      locationStatus.textContent =
+        'Getting location...';
+
+      try
+      {
+        postCoords =
+          await getCurrentCoords();
+
+        locationStatus.textContent =
+          'Location added ✓';
+      }
+      catch (err)
+      {
+        postCoords = null;
+
+        locationStatus.textContent =
+          'Could not get location';
+      }
     }
-    catch (err) {
-      postCoords = null;
-      locationStatus.textContent = 'Could not get location';
-    }
-  });
+  );
 
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    errorEl.classList.remove('visible');
+  form.addEventListener(
+    'submit',
+    async (event) =>
+    {
+      event.preventDefault();
 
-    const title = document.getElementById('postTitle').value.trim();
-    const genre = document.getElementById('postGenre').value.trim();
-    const group = document.getElementById('postGroup').value;
-    const mediaUrl = document.getElementById('postMediaUrl').value.trim();
-    const content = document.getElementById('postContent').value.trim();
-    const isLive = document.getElementById('postIsLive').checked;
+      errorEl.classList.remove(
+        'visible'
+      );
 
-    try {
-      await apiRequest('/api/posts',
-        {
-          method: 'POST',
-          body: JSON.stringify(
+      const title =
+        document
+          .getElementById('postTitle')
+          .value
+          .trim();
+
+      const genre =
+        document
+          .getElementById('postGenre')
+          .value
+          .trim();
+
+      const group =
+        document.getElementById(
+          'postGroup'
+        ).value;
+
+      const mediaUrl =
+        document
+          .getElementById(
+            'postMediaUrl'
+          )
+          .value
+          .trim();
+
+      const postContent =
+        document
+          .getElementById(
+            'postContent'
+          )
+          .value
+          .trim();
+
+      const isLive =
+        document.getElementById(
+          'postIsLive'
+        ).checked;
+
+      try
+      {
+        await apiRequest(
+          '/api/posts',
+          {
+            method: 'POST',
+
+            body: JSON.stringify(
             {
               title,
-              content,
+              content: postContent,
               mediaUrl,
               genre,
-              group: group || undefined,
-              isLive,
-              lat: postCoords ? postCoords.lat : undefined,
-              lng: postCoords ? postCoords.lng : undefined
-            })
-        });
 
-      form.reset();
-      postCoords = null;
-      document.getElementById('postLocationStatus').textContent = '';
-      showToast('Post created!', 'success');
-      await loadFeed();
+              group:
+                group || undefined,
+
+              isLive,
+
+              lat:
+                postCoords
+                  ? postCoords.lat
+                  : undefined,
+
+              lng:
+                postCoords
+                  ? postCoords.lng
+                  : undefined
+            })
+          }
+        );
+
+        form.reset();
+        postCoords = null;
+
+        document.getElementById(
+          'postLocationStatus'
+        ).textContent = '';
+
+        showToast(
+          'Post created!',
+          'success'
+        );
+
+        await loadFeed();
+      }
+      catch (err)
+      {
+        errorEl.textContent =
+          err.message;
+
+        errorEl.classList.add(
+          'visible'
+        );
+      }
     }
-    catch (err) {
-      errorEl.textContent = err.message;
-      errorEl.classList.add('visible');
-    }
-  });
+  );
 }
 
-function showToast(message, type) {
-  const toast = document.getElementById('toast');
+function showToast(message, type)
+{
+  const toast =
+    document.getElementById('toast');
+
   toast.textContent = message;
-  toast.className = `toast visible ${type}`;
+
+  toast.className =
+    `toast visible ${type}`;
 
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('visible'), 3000);
-}
 
-function getCurrentCoords() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error('Geolocation is not supported by your browser'));
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
-      (error) => reject(new Error(error.message))
+  toastTimer =
+    setTimeout(
+      () =>
+        toast.classList.remove(
+          'visible'
+        ),
+      3000
     );
-  });
 }
 
-function setupPostSearch() {
-  const form = document.getElementById('postSearchForm');
-  const nearMeCheckbox = document.getElementById('searchNearMe');
-  const errorEl = document.getElementById('searchError');
+function getCurrentCoords()
+{
+  return new Promise(
+    (resolve, reject) =>
+    {
+      if (!navigator.geolocation)
+      {
+        reject(
+          new Error(
+            'Geolocation is not supported by your browser'
+          )
+        );
 
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    errorEl.classList.remove('visible');
-
-    if (nearMeCheckbox.checked) {
-      try {
-        searchCoords = await getCurrentCoords();
-      }
-      catch (err) {
-        errorEl.textContent = 'Could not get your location: ' + err.message;
-        errorEl.classList.add('visible');
         return;
       }
-    }
-    else {
-      searchCoords = null;
-    }
 
-    await loadPostSearch();
-  });
+      navigator.geolocation
+        .getCurrentPosition(
+          (position) =>
+          {
+            resolve(
+            {
+              lat:
+                position.coords.latitude,
+
+              lng:
+                position.coords.longitude
+            });
+          },
+
+          (error) =>
+          {
+            reject(
+              new Error(
+                error.message ||
+                'Unable to detect location'
+              )
+            );
+          }
+        );
+    }
+  );
 }
 
-async function loadPostSearch() {
-  try {
-    const genre = document.getElementById('searchGenre').value.trim();
-    const isLive = document.getElementById('searchIsLive').value;
+function setupPostSearch()
+{
+  const form =
+    document.getElementById(
+      'postSearchForm'
+    );
 
-    const params = new URLSearchParams();
+  const nearMeCheckbox =
+    document.getElementById(
+      'searchNearMe'
+    );
 
-    if (genre) {
-      params.set('genre', genre);
+  const errorEl =
+    document.getElementById(
+      'searchError'
+    );
+
+  form.addEventListener(
+    'submit',
+    async (event) =>
+    {
+      event.preventDefault();
+
+      errorEl.classList.remove(
+        'visible'
+      );
+
+      if (nearMeCheckbox.checked)
+      {
+        try
+        {
+          searchCoords =
+            await getCurrentCoords();
+        }
+        catch (err)
+        {
+          errorEl.textContent =
+            'Could not get your location: ' +
+            err.message;
+
+          errorEl.classList.add(
+            'visible'
+          );
+
+          return;
+        }
+      }
+      else
+      {
+        searchCoords = null;
+      }
+
+      await loadPostSearch();
+    }
+  );
+}
+
+async function loadPostSearch()
+{
+  try
+  {
+    const genre =
+      document
+        .getElementById(
+          'searchGenre'
+        )
+        .value
+        .trim();
+
+    const isLive =
+      document.getElementById(
+        'searchIsLive'
+      ).value;
+
+    const params =
+      new URLSearchParams();
+
+    if (genre)
+    {
+      params.set(
+        'genre',
+        genre
+      );
     }
 
-    if (isLive) {
-      params.set('isLive', isLive);
+    if (isLive)
+    {
+      params.set(
+        'isLive',
+        isLive
+      );
     }
 
-    if (searchCoords) {
-      params.set('lat', searchCoords.lat);
-      params.set('lng', searchCoords.lng);
-      params.set('maxDistance', 20000);
+    if (searchCoords)
+    {
+      params.set(
+        'lat',
+        searchCoords.lat
+      );
+
+      params.set(
+        'lng',
+        searchCoords.lng
+      );
+
+      params.set(
+        'maxDistance',
+        20000
+      );
     }
 
-    const query = params.toString();
-    const { posts } = await apiRequest(`/api/posts/search${query ? '?' + query : ''}`);
+    const query =
+      params.toString();
+
+    const { posts } =
+      await apiRequest(
+        `/api/posts/search${query ? '?' + query : ''}`
+      );
+
     lastSearchResults = posts;
+
     renderSearchResultsList();
   }
-  catch (err) {
+  catch (err)
+  {
     showToast(err.message, 'error');
   }
 }
 
-function renderSearchResultsList() {
-  const container = document.getElementById('searchResultsList');
+function renderSearchResultsList()
+{
+  const container =
+    document.getElementById(
+      'searchResultsList'
+    );
 
-  if (!lastSearchResults.length) {
-    container.innerHTML = '<p class="empty-message">No posts found.</p>';
+  if (!lastSearchResults.length)
+  {
+    container.innerHTML =
+      '<p class="empty-message">No posts found.</p>';
+
     return;
   }
 
-  container.innerHTML = lastSearchResults.map((post) => postCardHtml(post)).join('');
+  container.innerHTML =
+    lastSearchResults
+      .map(
+        post => postCardHtml(post)
+      )
+      .join('');
 
-  lastSearchResults.forEach((post) => {
-    if (post._id === editingPostId) {
-      wireEditForm(post);
-      return;
+  lastSearchResults.forEach(
+    (post) =>
+    {
+      if (post._id === editingPostId)
+      {
+        wireEditForm(post);
+        return;
+      }
+
+      wireDisplayCard(post);
     }
+  );
 
-    wireDisplayCard(post);
-  });
+  setupVideoAutoplay(container);
 }
 
 init();
