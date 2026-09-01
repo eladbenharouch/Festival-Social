@@ -152,7 +152,7 @@ async function getGroupById(req, res)
 
     const group = await Group.findById(id)
       .populate('creator', 'username')
-      .populate('members', 'username');
+      .populate('members', 'username avatarUrl');
 
     if (!group)
     {
@@ -340,6 +340,62 @@ async function leaveGroup(req, res)
   }
 }
 
+async function removeMember(req, res)
+{
+  try
+  {
+    const { id, userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id))
+    {
+      return res.status(400).json({ error: 'Invalid group id' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId))
+    {
+      return res.status(400).json({ error: 'Invalid user id' });
+    }
+
+    const group = await Group.findById(id);
+
+    if (!group)
+    {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    if (group.creator.toString() !== req.session.userId)
+    {
+      return res.status(403).json({ error: 'Only the group creator can remove members' });
+    }
+
+    if (group.creator.toString() === userId)
+    {
+      return res.status(400).json({ error: 'The group creator cannot be removed from the group' });
+    }
+
+    if (!isMember(group, userId))
+    {
+      return res.status(400).json({ error: 'This user is not a member of this group' });
+    }
+
+    group.members = group.members.filter((memberId) => memberId.toString() !== userId);
+    group.memberCount = group.members.length;
+    await group.save();
+    await User.findByIdAndUpdate(userId, { $pull: { groups: group._id } });
+
+    const populated = await Group.findById(group._id)
+      .populate('creator', 'username')
+      .populate('members', 'username avatarUrl');
+
+    return res.status(200).json({ group: populated });
+  }
+  catch (err)
+  {
+    console.error('Remove member error:', err.message);
+    return res.status(500).json({ error: 'Server error while removing member' });
+  }
+}
+
 module.exports =
 {
   createGroup,
@@ -349,5 +405,6 @@ module.exports =
   updateGroup,
   deleteGroup,
   joinGroup,
-  leaveGroup
+  leaveGroup,
+  removeMember
 };

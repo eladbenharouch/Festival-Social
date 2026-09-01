@@ -15,6 +15,7 @@ async function init() {
 
   setupCreateForm();
   setupSearch();
+  setupEditGroupModal();
 
   await Promise.all([loadMyGroups(), loadAllGroups()]);
 }
@@ -71,7 +72,7 @@ function renderGroupGrid(container, groups, emptyMessage) {
     }
 
     if (editBtn) {
-      editBtn.addEventListener('click', () => handleEdit(group));
+      editBtn.addEventListener('click', () => openEditGroupModal(group._id));
     }
 
     if (deleteBtn) {
@@ -124,76 +125,123 @@ async function handleJoin(groupId) {
     showToast(err.message, 'error');
   }
 }
-async function handleEdit(group) {
-  const newName = prompt('Group name:', group.name);
-  if (newName === null) {
+let editingGroupId = null;
+
+async function openEditGroupModal(groupId) {
+  editingGroupId = groupId;
+
+  const modal = document.getElementById('editGroupModal');
+  const errorEl = document.getElementById('editGroupError');
+  const membersList = document.getElementById('editGroupMembersList');
+
+  errorEl.classList.remove('visible');
+  membersList.innerHTML = '<p>Loading...</p>';
+  modal.hidden = false;
+
+  try {
+    const { group } = await apiRequest(`/api/groups/${groupId}`);
+
+    document.getElementById('editGroupName').value = group.name;
+    document.getElementById('editGroupCategory').value = group.category;
+    document.getElementById('editGroupDescription').value = group.description || '';
+
+    renderGroupMembersList(group);
+  }
+  catch (err) {
+    showToast(err.message, 'error');
+    modal.hidden = true;
+  }
+}
+
+function renderGroupMembersList(group) {
+  const container = document.getElementById('editGroupMembersList');
+  const creatorId = group.creator && group.creator._id ? group.creator._id : group.creator;
+
+  if (!group.members.length) {
+    container.innerHTML = '<p class="empty-message">No members yet.</p>';
     return;
   }
 
-  const newCategory = prompt('Category:', group.category);
-  if (newCategory === null) {
-    return;
-  }
+  container.innerHTML = group.members.map((member) => {
+    const isCreator = String(member._id) === String(creatorId);
 
-  const newDescription = prompt('Description:', group.description || '');
-  if (newDescription === null) {
-    return;
-  }
+    const avatar = member.avatarUrl
+      ? `<img src="${escapeHtml(member.avatarUrl)}" alt="${escapeHtml(member.username)}" class="user-avatar">`
+      : `<div class="user-avatar user-avatar-placeholder">${escapeHtml(member.username.charAt(0).toUpperCase())}</div>`;
 
-  const name = newName.trim();
-  const category = newCategory.trim();
-  const description = newDescription.trim();
+    const removeBtn = isCreator
+      ? ''
+      : `<button class="remove-member-btn" title="Remove from group" data-member="${member._id}">🚪</button>`;
 
-      if (!name && !category)
-   {
-    showToast('Name and category are required', 'error');
-    return;
-    }
+    return `
+      <div class="user-row">
+        <div class="user-main">
+          ${avatar}
+          <div class="user-info">
+            <strong class="user-name">${escapeHtml(member.username)}${isCreator ? ' (owner)' : ''}</strong>
+          </div>
+        </div>
+        ${removeBtn}
+      </div>
+    `;
+  }).join('');
 
-  if (!name) 
-    {
-    showToast('Group name is required', 'error');
-    return;
-  }
+  container.querySelectorAll('.remove-member-btn').forEach((btn) => {
+    btn.addEventListener('click', () => handleRemoveMember(group._id, btn.dataset.member));
+  });
+}
 
-  if (!category)
-    {
-    showToast('Category is required', 'error');
-    return;
-  }
-
-  if (name.length > 20)
-  {
-    showToast('Group name must be 20 characters or fewer', 'error');
-    return;
-  }
-
-  if (category.length > 30)
-  {
-    showToast('Category must be 30 characters or fewer', 'error');
-    return;
-  }
-
-  try
-  {
-    await apiRequest(`/api/groups/${group._id}`,
-      {
-        method: 'PUT',
-        body: JSON.stringify(
-          {
-            name,
-            category,
-            description
-          })
-      });
-
-    showToast('Group updated!', 'success');
+async function handleRemoveMember(groupId, memberId) {
+  try {
+    const { group } = await apiRequest(`/api/groups/${groupId}/members/${memberId}`, { method: 'DELETE' });
+    showToast('Member removed', 'success');
+    renderGroupMembersList(group);
     await Promise.all([loadMyGroups(), loadAllGroups()]);
   }
-  catch (err) 
-  {
+  catch (err) {
     showToast(err.message, 'error');
   }
+}
+
+function setupEditGroupModal() {
+  const modal = document.getElementById('editGroupModal');
+  const form = document.getElementById('editGroupForm');
+  const errorEl = document.getElementById('editGroupError');
+
+  document.getElementById('closeEditGroupModalBtn').addEventListener('click', () => {
+    modal.hidden = true;
+  });
+
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) {
+      modal.hidden = true;
+    }
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    errorEl.classList.remove('visible');
+
+    const name = document.getElementById('editGroupName').value.trim();
+    const category = document.getElementById('editGroupCategory').value.trim();
+    const description = document.getElementById('editGroupDescription').value.trim();
+
+    try {
+      await apiRequest(`/api/groups/${editingGroupId}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify({ name, category, description })
+        });
+
+      showToast('Group updated!', 'success');
+      modal.hidden = true;
+      await Promise.all([loadMyGroups(), loadAllGroups()]);
+    }
+    catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.classList.add('visible');
+    }
+  });
 }
 async function handleLeave(groupId) {
   try {

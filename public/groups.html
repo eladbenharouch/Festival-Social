@@ -72,6 +72,38 @@
         <div class="groups-grid" id="allGroupsGrid"></div>
       </section>
 
+      <div id="editGroupModal" class="users-modal" hidden>
+        <div class="users-modal-content">
+
+          <div class="users-modal-header">
+            <h2>Edit Group</h2>
+            <button type="button" id="closeEditGroupModalBtn">&times;</button>
+          </div>
+
+          <p class="error-message" id="editGroupError"></p>
+
+          <form id="editGroupForm">
+            <div class="field">
+              <label for="editGroupName">Name</label>
+              <input type="text" id="editGroupName" required minlength="3" maxlength="20">
+            </div>
+            <div class="field">
+              <label for="editGroupCategory">Category</label>
+              <input type="text" id="editGroupCategory" required maxlength="30">
+            </div>
+            <div class="field">
+              <label for="editGroupDescription">Description</label>
+              <input type="text" id="editGroupDescription" maxlength="500">
+            </div>
+            <button type="submit" class="primary-btn btn-small">Save Changes</button>
+          </form>
+
+          <h3 style="margin-top:1.5rem;">Members</h3>
+          <div id="editGroupMembersList" class="users-list"></div>
+
+        </div>
+      </div>
+
     </div>
   </main>
 
