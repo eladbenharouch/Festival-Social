@@ -782,23 +782,33 @@ function postCardHtml(post)
   let followBtn = '';
 
   /*
-    A Follow button appears directly
-    on posts from users that the
-    current user does not follow.
+    A Follow/Following toggle appears
+    directly on posts from users other
+    than the current one. Once followed,
+    the button stays visible and shows
+    "Unfollow" on hover instead of
+    disappearing.
   */
-  if (
-    !isOwnPost &&
-    !isFollowingAuthor
-  )
+  if (!isOwnPost)
   {
-    followBtn = `
-      <button
-        class="btn-small primary-btn"
-        id="follow-${post._id}"
-      >
-        Follow
-      </button>
-    `;
+    followBtn = isFollowingAuthor
+      ? `
+        <button
+          class="btn-small btn-outline follow-toggle-btn"
+          id="unfollow-${post._id}"
+        >
+          <span class="label-default">Following</span>
+          <span class="label-hover">Unfollow</span>
+        </button>
+      `
+      : `
+        <button
+          class="btn-small primary-btn"
+          id="follow-${post._id}"
+        >
+          Follow
+        </button>
+      `;
   }
 
   let ownerActions = '';
@@ -851,11 +861,12 @@ function postCardHtml(post)
           return `
             <li class="comment-item">
 
-              <span class="comment-author">
-                ${escapeHtml(comment.author.username)}:
+              <span class="comment-body">
+                <span class="comment-author">
+                  ${escapeHtml(comment.author.username)}:
+                </span>
+                ${escapeHtml(comment.text)}
               </span>
-
-              ${escapeHtml(comment.text)}
 
               ${deleteBtn}
 
@@ -1243,6 +1254,11 @@ function wireDisplayCard(post)
       `follow-${post._id}`
     );
 
+  const unfollowBtn =
+    document.getElementById(
+      `unfollow-${post._id}`
+    );
+
   const editBtn =
     document.getElementById(
       `edit-${post._id}`
@@ -1275,6 +1291,17 @@ function wireDisplayCard(post)
       'click',
       () =>
         handleFollow(
+          post.author._id
+        )
+    );
+  }
+
+  if (unfollowBtn)
+  {
+    unfollowBtn.addEventListener(
+      'click',
+      () =>
+        handleUnfollow(
           post.author._id
         )
     );
