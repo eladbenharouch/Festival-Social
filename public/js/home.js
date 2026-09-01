@@ -70,6 +70,69 @@ async function renderLoggedIn()
   content.classList.add('page-container');
 
   content.innerHTML = `
+    <div class="page-search-bar">
+      <form
+        id="postSearchForm"
+        class="header-search-form"
+      >
+
+        <input
+          type="text"
+          id="searchGenre"
+          maxlength="40"
+          placeholder="Genre"
+        >
+
+        <select id="searchIsLive">
+          <option value="">
+            All posts
+          </option>
+
+          <option value="true">
+            Live only
+          </option>
+
+          <option value="false">
+            Non-live only
+          </option>
+        </select>
+
+        <label class="checkbox-field-inline">
+          <input
+            type="checkbox"
+            id="searchNearMe"
+          >
+          Near me
+        </label>
+
+        <button
+          type="submit"
+          class="primary-btn btn-small"
+        >
+          Search
+        </button>
+
+      </form>
+    </div>
+
+    <section
+      class="card-flat"
+      id="searchResultsSection"
+      hidden
+    >
+      <h2>Search Results</h2>
+
+      <p
+        class="error-message"
+        id="searchError"
+      ></p>
+
+      <div
+        class="posts-list"
+        id="searchResultsList"
+      ></div>
+    </section>
+
     <section class="card-flat">
       <h2>Share something</h2>
 
@@ -220,76 +283,6 @@ async function renderLoggedIn()
       <div
         class="posts-list"
         id="feedList"
-      ></div>
-    </section>
-
-    <section class="card-flat">
-      <h2>Search Posts</h2>
-
-      <form
-        id="postSearchForm"
-        class="inline-form"
-      >
-
-        <div class="field">
-          <label for="searchGenre">
-            Genre
-          </label>
-
-          <input
-            type="text"
-            id="searchGenre"
-            maxlength="40"
-            placeholder="Any genre"
-          >
-        </div>
-
-        <div class="field">
-          <label for="searchIsLive">
-            Live status
-          </label>
-
-          <select id="searchIsLive">
-            <option value="">
-              All posts
-            </option>
-
-            <option value="true">
-              Live only
-            </option>
-
-            <option value="false">
-              Non-live only
-            </option>
-          </select>
-        </div>
-
-        <label class="checkbox-field">
-          <input
-            type="checkbox"
-            id="searchNearMe"
-          >
-
-          Near my location
-        </label>
-
-        <button
-          type="submit"
-          class="primary-btn btn-small"
-        >
-          Search
-        </button>
-
-      </form>
-
-      <p
-        class="error-message"
-        id="searchError"
-      ></p>
-
-      <div
-        class="posts-list"
-        id="searchResultsList"
       ></div>
     </section>
   `;
@@ -2048,6 +2041,10 @@ async function loadPostSearch()
 
     const query =
       params.toString();
+
+    document.getElementById(
+      'searchResultsSection'
+    ).hidden = false;
 
     const { posts } =
       await apiRequest(
