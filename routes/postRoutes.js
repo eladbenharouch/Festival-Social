@@ -4,13 +4,16 @@ const postController = require('../controllers/postController');
 const { requireAuth } = require('../middleware/authMiddleware');
 
 router.post('/', requireAuth, postController.createPost);
+
 router.get('/feed', requireAuth, postController.getFeed);
-router.get('/group/:groupId', postController.getPostsByGroup);
+router.get('/group/:groupId', requireAuth, postController.getPostsByGroup);
 router.get('/user/:userId', requireAuth, postController.getPostsByUser);
-router.get('/search', postController.searchPosts);
-router.get('/:id', postController.getPostById);
+router.get('/search', requireAuth, postController.searchPosts);
+router.get('/:id', requireAuth, postController.getPostById);
+
 router.put('/:id', requireAuth, postController.updatePost);
 router.delete('/:id', requireAuth, postController.deletePost);
+
 router.post('/:id/like', requireAuth, postController.toggleLike);
 router.post('/:id/comments', requireAuth, postController.addComment);
 router.delete('/:id/comments/:commentId', requireAuth, postController.deleteComment);

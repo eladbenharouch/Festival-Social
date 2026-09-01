@@ -64,6 +64,7 @@ async function login(req, res)
   try
   {
     const { username, password } = req.body;
+    console.log('LOGIN REQUEST:', username);
 
     if (!username || !password)
     {
