@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Tickets - Festival Social</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="logo">
+      Festival Social
+    </div>
+
+    <nav class="site-nav">
+      <ul id="navLinks"></ul>
+    </nav>
+  </header>
+
+  <div
+    class="toast"
+    id="toast"
+  ></div>
+
+  <main class="ticket-marketplace-main">
+
+    <section class="card">
+
+      <h1>
+        Ticket Marketplace
+      </h1>
+
+      <p>
+        Buy and sell second-hand tickets within the Festival Social community.
+      </p>
+
+      <div class="ticket-law-notice">
+
+        <strong>
+          ⚠️ Ticket Resale Policy
+        </strong>
+
+        <p>
+          In accordance with Israeli law regarding ticket scalping,
+          tickets for performances may not be offered for resale
+          above their stated original price.
+        </p>
+
+        <p>
+          Festival Social does not allow a selling price
+          higher than the original ticket price entered by the seller.
+        </p>
+
+        <p>
+          The seller declares that the original price entered is the
+          actual purchase or face price of the ticket.
+        </p>
+
+        <p>
+          Listings that violate this rule cannot be published.
+        </p>
+
+      </div>
+
+    </section>
+
+    <section class="card">
+
+      <h2>
+        Sell a ticket
+      </h2>
+
+      <p
+        class="error-message"
+        id="ticketError"
+      ></p>
+
+      <form
+        id="ticketForm"
+        class="inline-form"
+      >
+
+        <div class="field">
+          <label for="ticketEvent">
+            Event
+          </label>
+
+          <input
+            type="text"
+            id="ticketEvent"
+            required
+            maxlength="120"
+            placeholder="Festival or party name"
+          >
+        </div>
+
+        <div class="field">
+          <label for="ticketDate">
+            Event date
+          </label>
+
+          <input
+            type="date"
+            id="ticketDate"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label for="ticketOriginalPrice">
+            Original price (₪)
+          </label>
+
+          <input
+            type="number"
+            id="ticketOriginalPrice"
+            required
+            min="1"
+            step="0.01"
+            placeholder="150"
+          >
+        </div>
+
+        <div class="field">
+          <label for="ticketSellingPrice">
+            Selling price (₪)
+          </label>
+
+          <input
+            type="number"
+            id="ticketSellingPrice"
+            required
+            min="1"
+            step="0.01"
+            placeholder="120"
+          >
+        </div>
+
+        <div class="field">
+          <label for="ticketContact">
+            Phone number
+          </label>
+
+          <input
+            type="tel"
+            id="ticketContact"
+            required
+            maxlength="30"
+            placeholder="050-1234567"
+          >
+        </div>
+
+        <div class="field">
+          <label for="ticketDetails">
+            Details
+          </label>
+
+          <textarea
+            id="ticketDetails"
+            maxlength="500"
+            rows="3"
+            placeholder="Optional details about the ticket"
+          ></textarea>
+        </div>
+
+        <button
+          type="submit"
+          class="primary-btn"
+        >
+          Publish Ticket
+        </button>
+
+      </form>
+
+    </section>
+
+    <section class="card">
+
+      <h2>
+        Available Tickets
+      </h2>
+
+      <div
+        id="ticketList"
+        class="posts-list"
+      ></div>
+
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    Festival Social &mdash; Internet Application Development course project
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/tickets.js"></script>
+
+</body>
+</html>

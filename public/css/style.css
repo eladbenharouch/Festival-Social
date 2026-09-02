@@ -1451,3 +1451,560 @@ footer.site-footer {
     margin-top: 2.25rem;
   }
 }
+/* =========================
+   TICKET MARKETPLACE
+   ========================= */
+
+.ticket-law-notice {
+  margin-top: 20px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 190, 60, 0.08);
+}
+
+.ticket-law-notice strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 17px;
+}
+
+.ticket-law-notice p {
+  margin: 6px 0;
+  line-height: 1.6;
+}
+
+.ticket-card {
+  margin-bottom: 18px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.ticket-card:hover {
+  transform: translateY(-2px);
+}
+
+.ticket-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ticket-price-row {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  margin: 18px 0 10px;
+}
+
+.ticket-price-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ticket-price-label {
+  font-size: 13px;
+  opacity: 0.65;
+}
+
+.ticket-selling-price {
+  font-size: 27px;
+  font-weight: 800;
+}
+
+.ticket-original-price {
+  font-size: 18px;
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.ticket-saving {
+  display: inline-block;
+  margin: 0 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ticket-contact {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ticket-contact strong {
+  margin-right: 6px;
+}
+
+.category-badge {
+  display: inline-block;
+  margin-right: 6px;
+  margin-bottom: 4px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+#ticketForm {
+  margin-top: 18px;
+}
+
+#ticketForm textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+@media (max-width: 650px) {
+  .ticket-price-row {
+    gap: 20px;
+  }
+
+  .ticket-card-top {
+    align-items: flex-start;
+  }
+}
+/* =========================================
+   TICKET MARKETPLACE - PAGE LAYOUT
+   ========================================= */
+
+.ticket-marketplace-main {
+  display: block;
+  width: 100%;
+  padding: 40px 24px 60px;
+}
+
+.ticket-marketplace-main > .card {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 28px;
+  padding: 30px;
+}
+
+.ticket-marketplace-main > .card h1 {
+  text-align: left;
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.ticket-marketplace-main > .card > p {
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.ticket-marketplace-main #ticketForm {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  align-items: end;
+}
+
+.ticket-marketplace-main #ticketForm .field {
+  width: 100%;
+  min-width: 0;
+}
+
+.ticket-marketplace-main #ticketForm .field:last-of-type {
+  grid-column: 1 / -1;
+}
+
+.ticket-marketplace-main #ticketForm button {
+  width: fit-content;
+  min-width: 170px;
+}
+
+.ticket-marketplace-main .posts-list {
+  width: 100%;
+  gap: 18px;
+}
+
+.ticket-marketplace-main .ticket-card {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 22px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(124, 92, 255, 0.035)
+    );
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+}
+
+.ticket-marketplace-main .ticket-card h3 {
+  margin-top: 8px;
+  font-size: 1.3rem;
+}
+
+.ticket-marketplace-main .ticket-law-notice {
+  margin-top: 22px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 178, 56, 0.10),
+      rgba(255, 178, 56, 0.04)
+    );
+  border-color: rgba(255, 178, 56, 0.25);
+}
+
+.ticket-marketplace-main .ticket-price-row {
+  padding: 14px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ticket-marketplace-main .ticket-contact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+@media (max-width: 700px) {
+  .ticket-marketplace-main {
+    padding: 24px 14px 40px;
+  }
+
+  .ticket-marketplace-main > .card {
+    padding: 20px;
+  }
+
+  .ticket-marketplace-main #ticketForm {
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-marketplace-main #ticketForm .field:last-of-type {
+    grid-column: auto;
+  }
+
+  .ticket-marketplace-main #ticketForm button {
+    width: 100%;
+  }
+}
+/* FIX - CENTER TICKET MARKETPLACE PAGE */
+
+main.ticket-marketplace-main {
+  display: block;
+  width: 100%;
+  padding: 3rem 2rem;
+}
+
+.ticket-marketplace-main .page-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}/* =========================================
+   FINAL TICKETS CENTERING FIX
+   ========================================= */
+
+main.ticket-marketplace-main {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 28px;
+  padding: 48px 24px 60px !important;
+}
+
+main.ticket-marketplace-main > .card {
+  width: min(900px, 100%) !important;
+  max-width: 900px !important;
+  margin: 0 auto !important;
+  padding: 30px !important;
+}
+
+main.ticket-marketplace-main > .card:first-child {
+  margin-top: 0 !important;
+}
+
+main.ticket-marketplace-main #ticketList {
+  width: 100%;
+}
+
+main.ticket-marketplace-main .ticket-card {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+@media (max-width: 700px) {
+  main.ticket-marketplace-main {
+    padding: 24px 14px 40px !important;
+  }
+
+  main.ticket-marketplace-main > .card {
+    padding: 20px !important;
+  }
+}
+
+/* =========================================
+   TICKET MARKETPLACE - INTERACTIONS
+   ========================================= */
+
+.ticket-owner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ticket-sold-btn {
+  background: rgba(80, 200, 120, 0.12);
+  border: 1px solid rgba(80, 200, 120, 0.35);
+  color: #8ee6aa;
+  cursor: pointer;
+}
+
+.ticket-sold-btn:hover {
+  background: rgba(80, 200, 120, 0.22);
+}
+
+.ticket-sold-badge {
+  background: rgba(80, 200, 120, 0.15);
+  border: 1px solid rgba(80, 200, 120, 0.35);
+  color: #8ee6aa;
+}
+
+.ticket-card-sold {
+  opacity: 0.72;
+}
+
+.ticket-card-sold .ticket-selling-price {
+  text-decoration: line-through;
+}
+
+.ticket-sold-message {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(80, 200, 120, 0.10);
+  border: 1px solid rgba(80, 200, 120, 0.25);
+  font-weight: 700;
+  color: #8ee6aa;
+}
+
+
+/* INTEREST BUTTON */
+
+.ticket-social-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ticket-interest-btn {
+  appearance: none;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.ticket-interest-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.30);
+}
+
+.ticket-interest-btn.active {
+  background: rgba(255, 45, 135, 0.15);
+  border-color: rgba(255, 45, 135, 0.45);
+  color: #ff6ba9;
+}
+
+.ticket-interest-btn:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.ticket-interest-count {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.ticket-interested-users {
+  margin: 10px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+
+/* COMMENTS */
+
+.ticket-comments {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ticket-comments h4 {
+  margin: 0 0 14px;
+  font-size: 15px;
+}
+
+.ticket-comments h4 span {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.ticket-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ticket-comment {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.ticket-comment > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  line-height: 1.4;
+}
+
+.ticket-comment strong {
+  font-size: 13px;
+}
+
+.ticket-comment span {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.ticket-comment-delete {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ticket-comment-delete:hover {
+  color: #ff5d73;
+}
+
+
+/* COMMENT FORM */
+
+.ticket-comment-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.ticket-comment-form input {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.ticket-comment-form button {
+  flex-shrink: 0;
+  min-width: 100px;
+  cursor: pointer;
+}
+
+
+/* DELETE BUTTON */
+
+.ticket-owner-actions .btn-danger {
+  cursor: pointer;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 650px) {
+
+  .ticket-card-top {
+    flex-direction: column;
+  }
+
+  .ticket-owner-actions {
+    width: 100%;
+  }
+
+  .ticket-social-actions {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ticket-comment-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ticket-comment-form button {
+    width: 100%;
+  }
+}
+
+/* FINAL TICKET COMMENT FORM FIX */
+
+.ticket-comment-form {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin-top: 14px !important;
+}
+
+.ticket-comment-form input {
+  flex: 1 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 42px !important;
+  padding: 0 12px !important;
+  margin: 0 !important;
+  border-radius: 10px !important;
+}
+
+.ticket-comment-form button {
+  width: auto !important;
+  min-width: 105px !important;
+  height: 42px !important;
+  margin: 0 !important;
+  padding: 0 16px !important;
+  border-radius: 10px !important;
+}
+
+@media (max-width: 650px) {
+  .ticket-comment-form {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .ticket-comment-form input,
+  .ticket-comment-form button {
+    width: 100% !important;
+  }
+}
