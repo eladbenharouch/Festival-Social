@@ -145,3 +145,7 @@ vite.config.ts.timestamp-*
 # Large local original video
 # The compressed version IMG_2356_small.mp4 is used by the app and stays in Git.
 public/videos/IMG_2356.MOV
+# Large original demo videos
+public/videos/IMG_2150.MOV
+public/videos/IMG_2421.MOV
+public/videos/IMG_2543.MOV
