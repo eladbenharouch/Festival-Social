@@ -36,6 +36,12 @@ function renderNav(navElement, user, currentPage)
     </li>
 
     <li>
+      <a href="/tickets.html" class="${currentPage === 'tickets' ? 'active' : ''}">
+        Tickets
+      </a>
+    </li>
+
+    <li>
       <a href="/map.html" class="${currentPage === 'map' ? 'active' : ''}">
         Map
       </a>
