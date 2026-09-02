@@ -437,10 +437,10 @@ function getMediaUrl(index)
 {
   const partyVideos =
   [
-    '/videos/IMG_2150.MOV',
+    '/videos/IMG_2150_small.mp4',
     '/videos/IMG_2356_small.mp4',
-    '/videos/IMG_2421.MOV',
-    '/videos/IMG_2543.MOV'
+    '/videos/IMG_2421_small.mp4',
+    '/videos/IMG_2543_small.mp4'
   ];
 
   const partyImages =
